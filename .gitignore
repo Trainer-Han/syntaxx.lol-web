@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.env
+.env.*
+!.env.example
+*.local
+.idea/
+.vscode/
+.DS_Store
+node_modules/.tmp/
+
+# The original Replit export. Kept on disk, not in the repo.
+syntaxx-website*.zip

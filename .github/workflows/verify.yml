@@ -1,0 +1,52 @@
+name: verify
+
+# live-website is what syntaxx.lol serves, so this is the gate between a dev
+# push and production. It runs on every PR into live-website (where it is a
+# required check) and on pushes to main, so breakage surfaces while you are
+# still working rather than at merge time.
+on:
+  pull_request:
+    branches: [live-website]
+  push:
+    branches: [main, live-website]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci --no-fund --no-audit
+
+      # Dead asset references, committed secrets, unreplaced config
+      # placeholders, duplicate migration numbers.
+      - name: Static checks
+        run: node scripts/verify.js
+
+      # Both projects: the SPA and the Worker.
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build the SPA
+        run: npm run build
+
+      # Proves the Worker bundles — including the MongoDB driver against
+      # workerd, which is the part most likely to break on a dependency bump.
+      # No credentials needed and nothing is deployed.
+      - name: Bundle the Worker
+        run: npx wrangler deploy --dry-run --outdir .wrangler/ci
+
+      - name: Summary
+        if: success()
+        run: echo "All checks green — safe to merge into live-website." >> "$GITHUB_STEP_SUMMARY"

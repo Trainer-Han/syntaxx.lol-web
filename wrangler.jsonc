@@ -1,0 +1,71 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "syntaxx-lol",
+  "main": "./worker/src/index.ts",
+
+  // nodejs_compat is what makes the MongoDB driver work: it supplies node:net
+  // and node:tls's TLSSocket/connect, which the driver's wire protocol needs.
+  // With a compatibility_date on or after 2024-09-23 this flag already gives
+  // v2 behaviour, so nodejs_compat_v2 must NOT also be listed.
+  //
+  // The date is capped by the workerd bundled with wrangler 4.86, which is the
+  // newest line that still runs on Node 20 — wrangler 4.120+ requires Node 22.
+  // Anything from 2024-09-23 onwards satisfies the driver, so this costs
+  // nothing. Moving to Node 22 lets both be raised together.
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    // Vite's client build. The Worker only ever sees a request that either
+    // matches no asset, or matches run_worker_first below.
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    // wouter does client-side routing, so /commands, /dashboard/:id etc. must
+    // return index.html rather than 404.
+    "not_found_handling": "single-page-application",
+    // Without this, not_found_handling would swallow /api/* and hand the SPA
+    // shell back to fetch() calls expecting JSON.
+    "run_worker_first": ["/api/*"]
+  },
+
+  "observability": {
+    "enabled": true
+  },
+
+  // Non-secret configuration. Secrets (MONGODB_URI, DISCORD_BOT_TOKEN,
+  // DISCORD_CLIENT_SECRET, SESSION_SECRET, IP_HASH_SALT) are set with
+  // `wrangler secret put` and are deliberately absent from this file.
+  "vars": {
+    "DISCORD_CLIENT_ID": "",
+    "DISCORD_REDIRECT_URI": "https://syntaxx.lol/api/auth/callback"
+  },
+
+  // Sessions. The Discord guild list is far too big for a 4KB cookie, so the
+  // cookie carries only a signed id and the payload lives here.
+  // Create with: wrangler kv namespace create SESSIONS
+  "kv_namespaces": [
+    {
+      "binding": "SESSIONS",
+      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+    }
+  ],
+
+  // Site-only content: reviews, lore, supporters, custom command listings.
+  // This is the half that ran on Replit's Postgres. It is deliberately NOT in
+  // the bot's MongoDB — these tables are read on every public page load, and
+  // D1 avoids paying a Mongo TCP+TLS+SCRAM handshake to render the home page.
+  // Create with: wrangler d1 create syntaxx-site
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "syntaxx-site",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "routes": [
+    { "pattern": "syntaxx.lol", "custom_domain": true },
+    { "pattern": "www.syntaxx.lol", "custom_domain": true }
+  ]
+}

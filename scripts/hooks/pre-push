@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# Refuses any push that would move live-website — the branch syntaxx.lol is
+# deployed from.
+#
+# Server-side branch protection cannot cover this on its own: tooling acting
+# through the owner's credentials is indistinguishable from the owner, so the
+# rule has to hold here too.
+#
+# Enable with:  git config core.hooksPath scripts/hooks
+#
+# git feeds each ref being pushed on stdin as:
+#   <local ref> <local sha> <remote ref> <remote sha>
+
+protected="refs/heads/live-website"
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  if [ "$remote_ref" = "$protected" ]; then
+    cat >&2 <<'EOF'
+
+  Refusing to push to live-website.
+
+  live-website is what syntaxx.lol serves. It moves by pull request, and
+  merging is the owner's decision — every time, without exception.
+
+      git push origin main
+      gh pr create --base live-website --head main --title "..." --body "..."
+
+  Then stop, and tell the owner the PR is ready.
+
+EOF
+    exit 1
+  fi
+done
+
+exit 0

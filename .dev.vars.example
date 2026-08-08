@@ -1,0 +1,22 @@
+# Copy to .dev.vars (gitignored) for `wrangler dev`.
+# In production these are Worker secrets: wrangler secret put <NAME>
+
+# The bot's existing Atlas cluster. The dashboard writes settings the bot
+# reads back, so this must be the SAME database the bot uses — see the
+# DatabaseURL value in the bot repo's config.json.
+MONGODB_URI="mongodb+srv://user:pass@cluster.mongodb.net/syntaxx?retryWrites=true&w=majority"
+
+# Discord application. CLIENT_ID and REDIRECT_URI are also in wrangler.jsonc
+# vars (they are not secret); the secret and bot token are.
+DISCORD_BOT_TOKEN=""
+DISCORD_CLIENT_SECRET=""
+
+# Signs the session cookie. Any long random string; rotating it logs everyone
+# out, which is the intended behaviour.
+SESSION_SECRET=""
+
+# Salts the IP hashes used for alt detection in /verify. Nothing else computes
+# these hashes — the bot only stores them — but the value must stay STABLE:
+# change it and every previously verified IP stops matching, which silently
+# resets alt detection for every server.
+IP_HASH_SALT=""
