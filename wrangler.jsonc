@@ -64,8 +64,24 @@
     }
   ],
 
-  "routes": [
-    { "pattern": "syntaxx.lol", "custom_domain": true },
-    { "pattern": "www.syntaxx.lol", "custom_domain": true }
-  ]
+  // Serve on <worker>.<subdomain>.workers.dev until the custom domain is live.
+  "workers_dev": true
+
+  // ── Custom domain: add this back once syntaxx.lol is an ACTIVE zone ───────
+  //
+  // Workers Custom Domains require the domain to be a Cloudflare zone — unlike
+  // Pages, a CNAME from external DNS does not work. syntaxx.lol is currently on
+  // Porkbun's nameservers, so `wrangler deploy` fails with these present.
+  //
+  // Once the zone shows Active in the dashboard, replace "workers_dev" above
+  // with:
+  //
+  //   "routes": [
+  //     { "pattern": "syntaxx.lol", "custom_domain": true },
+  //     { "pattern": "www.syntaxx.lol", "custom_domain": true }
+  //   ]
+  //
+  // Both entries are needed: a Worker attached to syntaxx.lol does not receive
+  // requests for www.syntaxx.lol. Cloudflare creates the DNS records and issues
+  // the certificates itself.
 }
