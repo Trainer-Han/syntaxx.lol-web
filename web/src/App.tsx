@@ -1,18 +1,25 @@
+import { Suspense, lazy } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
-import Terms from "@/pages/Terms";
-import Privacy from "@/pages/Privacy";
-import Servers from "@/pages/Servers";
-import Dashboard from "@/pages/Dashboard";
-import Commands from "@/pages/Commands";
-import Verify from "@/pages/Verify";
-import Lore from "@/pages/Lore";
-import Reviews from "@/pages/Reviews";
 import AdBanner from "@/components/AdBanner";
+
+// Home is eager: it is the landing page, and code-splitting it would only add
+// a loading flash to the one route most visitors see first. Everything else is
+// lazy — Dashboard, Commands and Lore are the three biggest pages in the app,
+// and none of them are on the path from a cold visit to the invite button.
+import Home from "@/pages/Home";
+
+const Commands = lazy(() => import("@/pages/Commands"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Lore = lazy(() => import("@/pages/Lore"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Privacy = lazy(() => import("@/pages/Privacy"));
+const Reviews = lazy(() => import("@/pages/Reviews"));
+const Servers = lazy(() => import("@/pages/Servers"));
+const Terms = lazy(() => import("@/pages/Terms"));
+const Verify = lazy(() => import("@/pages/Verify"));
 
 const queryClient = new QueryClient();
 
@@ -46,6 +53,16 @@ function AdStrip({ side }: { side: "left" | "right" }) {
   );
 }
 
+/**
+ * Shown while a lazy page's chunk loads. Deliberately just the page
+ * background at full height — a spinner that appears for 80ms on a fast
+ * connection reads as a flicker, and anything taller causes a scroll jump
+ * when the real page swaps in.
+ */
+function PageFallback() {
+  return <div style={{ minHeight: "100vh", background: "hsl(var(--background))" }} />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -69,7 +86,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
+          <Suspense fallback={<PageFallback />}>
+            <Router />
+          </Suspense>
         </WouterRouter>
 
         {/* ── Fixed side ad strips (visible only on ≥ 1440px screens) ── */}

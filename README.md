@@ -179,6 +179,7 @@ npm run build && npx wrangler dev
 | Path | What it is |
 | --- | --- |
 | `web/` | The React SPA — pages, the four UI components it actually uses |
+| `scripts/make-icons.mjs` | Regenerates the favicon set from the logo |
 | `worker/src/index.ts` | Entry point: session middleware, `/api` mounting, asset fallback |
 | `worker/src/routes/` | One file per route group, ported from the old Express server |
 | `worker/src/lib/db.ts` | MongoDB, with the Workers rules enforced |
@@ -234,13 +235,22 @@ Ported to a plain npm project on Workers:
 - **AdSense slot ids are placeholders.** `web/src/App.tsx` has
   `LEFT_AD_SLOT`/`RIGHT_AD_SLOT` set to `"0000000000"`. The ad strips render
   nothing useful until real slot ids from the AdSense dashboard replace them.
-- **Favicons are a single `.ico`.** The export referenced `favicon-32x32.png`,
-  `favicon-16x16.png`, `apple-touch-icon.png` and `android-chrome-512x512.png`,
-  none of which were in it. The bot repo's real logo and `.ico` are used
-  instead; a proper multi-size set can be generated from `syntaxx-logo.png`.
-- **`syntaxx-logo.png` is 568 KB** at 724×724 — worth compressing.
-- **The JS bundle is 630 KB** (187 KB gzipped) in one chunk. Route-level code
-  splitting would help; nothing is broken without it.
 - **Node 20 caps the toolchain.** wrangler 4.120+ needs Node 22, so wrangler is
   pinned to 4.86 and `compatibility_date` to `2026-05-01`. Both can be raised
   together after a Node upgrade; nothing depends on a newer date.
+- **No `og:image` at the right aspect ratio.** Link previews use the square
+  logo; a 1200×630 card would look better in Discord and on Twitter.
+
+## Icons
+
+`web/public`'s favicon set and the compressed logo are generated, and
+committed. Regenerate after changing the artwork:
+
+```sh
+npm install --no-save sharp
+node scripts/make-icons.mjs
+```
+
+sharp is deliberately not a project dependency — it is a native module, and
+installing it on every CI run and every clone is a poor trade for something
+used about once a year.
