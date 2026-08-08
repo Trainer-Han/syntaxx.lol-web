@@ -10,7 +10,8 @@
     "build": "vite build",
     "typecheck": "tsc --build --force",
     "verify": "node scripts/verify.js",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "browser-check": "node scripts/browser-check.js"
   },
   "dependencies": {
     "hono": "^4.13.1",

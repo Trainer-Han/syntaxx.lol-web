@@ -47,6 +47,31 @@ jobs:
       - name: Bundle the Worker
         run: npx wrangler deploy --dry-run --outdir .wrangler/ci
 
+      # puppeteer-core drives the Chrome already on the runner, so there is no
+      # ~150MB browser download.
+      - name: Install puppeteer-core
+        run: npm install --no-save --no-fund --no-audit puppeteer-core
+
+      - name: Locate Chrome
+        id: chrome
+        run: |
+          for candidate in /usr/bin/google-chrome /usr/bin/chromium-browser /usr/bin/chromium; do
+            if [ -x "$candidate" ]; then
+              echo "path=$candidate" >> "$GITHUB_OUTPUT"
+              echo "Using $candidate"
+              exit 0
+            fi
+          done
+          echo "No Chrome on the runner image." >&2
+          exit 1
+
+      # A build can pass, every route can return 200, and the app can still
+      # render nothing. Only a browser catches that.
+      - name: Browser checks
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.path }}
+        run: node scripts/browser-check.js
+
       - name: Summary
         if: success()
         run: echo "All checks green — safe to merge into live-website." >> "$GITHUB_STEP_SUMMARY"

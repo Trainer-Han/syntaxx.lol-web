@@ -174,6 +174,26 @@ To exercise it exactly as it ships — one origin, no proxy:
 npm run build && npx wrangler dev
 ```
 
+Note that opening `web/index.html` in a browser directly will always show a
+**blank page**. It is a Vite entry template: the script tag points at
+`/src/main.tsx`, raw TypeScript and JSX that no browser can execute. Use the
+dev server or a build.
+
+### Browser checks
+
+`verify.js` reads files. `browser-check.js` loads pages, across a mobile and a
+desktop viewport, and fails on a blank render, an uncaught exception, a failed
+request or horizontal overflow:
+
+```sh
+npm run build
+npm install --no-save puppeteer-core
+npm run browser-check
+```
+
+It drives an already-installed Chrome via `puppeteer-core`, so there is no
+browser download. Set `CHROME_PATH` if it is not found automatically.
+
 ## Layout
 
 | Path | What it is |
@@ -187,6 +207,7 @@ npm run build && npx wrangler dev
 | `worker/src/lib/guards.ts` | `isOwner`, `canManageGuild`, constant-time compare |
 | `migrations/` | D1 schema and the lore seed |
 | `scripts/verify.js` | Static pre-flight checks |
+| `scripts/browser-check.js` | Runtime checks in real Chrome — catches blank pages |
 
 ## What changed from the Replit export
 

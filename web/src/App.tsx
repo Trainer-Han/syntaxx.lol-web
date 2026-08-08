@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -29,8 +29,35 @@ const LEFT_AD_SLOT  = "0000000000"; // ← replace with your left slot ID
 const RIGHT_AD_SLOT = "0000000000"; // ← replace with your right slot ID
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Fixed vertical ad strip — only rendered when viewport is wide enough */
+/** Tailwind's default `2xl`. Kept in one place so JS and CSS cannot drift. */
+const WIDE_SCREEN = "(min-width: 96rem)";
+
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const onChange = () => setMatches(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, [query]);
+  return matches;
+}
+
+/**
+ * Fixed vertical ad strip, only on screens wide enough that it cannot overlap
+ * the content.
+ *
+ * The gate is a media *query*, not a `hidden 2xl:block` class. Hiding it with
+ * CSS still mounted the <ins> and still pushed it to AdSense, which then
+ * measured a zero-width element and threw `availableWidth=0` — two uncaught
+ * exceptions on every page load for every visitor below the breakpoint, which
+ * is most of them. AdBanner's try/catch cannot help: the push() succeeds and
+ * AdSense throws later, asynchronously, outside it.
+ */
 function AdStrip({ side }: { side: "left" | "right" }) {
+  if (!useMediaQuery(WIDE_SCREEN)) return null;
+
   return (
     <div
       style={{
@@ -42,8 +69,6 @@ function AdStrip({ side }: { side: "left" | "right" }) {
         zIndex: 50,
         pointerEvents: "auto",
       }}
-      // hide on screens narrower than 1440px so ads never overlap content
-      className="hidden 2xl:block"
     >
       <AdBanner
         slot={side === "left" ? LEFT_AD_SLOT : RIGHT_AD_SLOT}
