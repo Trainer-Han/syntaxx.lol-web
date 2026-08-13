@@ -10,8 +10,15 @@
  * The env var still wins if it is set, which keeps a fork working without an
  * edit here.
  */
+// Verify before changing this. A wrong id does not fail loudly — Discord's
+// authorize page just refuses, which is how "1358071643238563932" (from
+// wrangler.jsonc, and an application that does not exist) shipped:
+//
+//     curl https://discord.com/api/v10/applications/<id>/rpc
+//
+// should return {"name":"syntaxx", ...}, not {"message":"Unknown Application"}.
 export const DISCORD_CLIENT_ID =
-  import.meta.env.VITE_DISCORD_CLIENT_ID ?? "1358071643238563932";
+  import.meta.env.VITE_DISCORD_CLIENT_ID ?? "1055141641679290378";
 
 /** `permissions=8` is Administrator, which is what the bot's setup expects. */
 export const INVITE_URL =
