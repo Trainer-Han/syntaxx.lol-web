@@ -36,7 +36,11 @@
   // DISCORD_CLIENT_SECRET, SESSION_SECRET, IP_HASH_SALT) are set with
   // `wrangler secret put` and are deliberately absent from this file.
   "vars": {
-    "DISCORD_CLIENT_ID": "1358071643238563932",
+    // The syntaxx bot application. The previous value here, 1358071643238563932,
+    // was not a real application — Discord answers "Unknown Application" for it,
+    // which is why every invite link built from it died. web/src/config.ts
+    // carries the same id for the static site.
+    "DISCORD_CLIENT_ID": "1055141641679290378",
     "DISCORD_REDIRECT_URI": "https://syntaxx.lol/api/auth/callback"
   },
 
