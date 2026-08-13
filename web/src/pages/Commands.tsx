@@ -1,12 +1,13 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
   Shield, Wrench, Gamepad2, Sparkles, Terminal,
-  Search, ExternalLink, LogIn, ChevronRight, MousePointerClick,
-  Image, BarChart2, Coins, Globe, SlidersHorizontal, BookOpen, Menu, X, Plus,
+  Search, ExternalLink, ChevronRight, MousePointerClick,
+  Image, BarChart2, Coins, Globe, SlidersHorizontal, Menu, X,
 } from "lucide-react";
 import logoUrl from "/syntaxx-logo.png";
+import { INVITE_URL } from "@/config";
 
 const ACCENT  = "#B8A05B";
 const BG      = "#121212";
@@ -16,7 +17,6 @@ const TEXT    = "#eeeeee";
 const MUTED   = "#888888";
 const GREEN   = "#57F287";
 const ORANGE  = "#E67E22";
-const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${import.meta.env.VITE_DISCORD_CLIENT_ID ?? ""}&permissions=8&scope=bot%20applications.commands`;
 
 type Tag = "admin" | "pro" | "prefix";
 
@@ -33,58 +33,6 @@ interface Category {
   color:    string;
   badge?:   string;
   commands: Command[];
-}
-
-interface AuthUser { id: string; username: string; avatar: string | null; }
-
-function useAuth() {
-  const [auth, setAuth] = useState<{ user: AuthUser | null; isOwner: boolean }>({ user: null, isOwner: false });
-  useEffect(() => {
-    fetch("/api/auth/me", { credentials: "include" })
-      .then(r => r.json())
-      .then((d: { user?: AuthUser | null; isOwner?: boolean }) => {
-        setAuth({ user: d.user ?? null, isOwner: d.isOwner ?? false });
-      })
-      .catch(() => {});
-  }, []);
-  return auth;
-}
-
-interface CustomCommandDto {
-  id:             string;
-  categoryId:     string;
-  categoryLabel:  string;
-  categoryColor:  string;
-  name:           string;
-  description:    string;
-  usage:          string | null;
-  commandType:    "slash" | "prefix";
-  isAdmin:        boolean;
-}
-
-function useCustomCommands() {
-  const [items, setItems] = useState<CustomCommandDto[]>([]);
-  const load = useCallback(() => {
-    fetch("/api/commands/custom", { credentials: "include" })
-      .then(r => r.json())
-      .then((d: { commands?: Array<Record<string, unknown>> }) => {
-        const rows = (d.commands ?? []).map(r => ({
-          id:            r.id as string,
-          categoryId:    r.category_id as string,
-          categoryLabel: r.category_label as string,
-          categoryColor: r.category_color as string,
-          name:          r.name as string,
-          description:   r.description as string,
-          usage:         (r.usage as string | null) ?? null,
-          commandType:   r.command_type as "slash" | "prefix",
-          isAdmin:       Boolean(r.is_admin),
-        }));
-        setItems(rows);
-      })
-      .catch(() => {});
-  }, []);
-  useEffect(() => { load(); }, [load]);
-  return { items, reload: load };
 }
 
 const categories: Category[] = [
@@ -333,32 +281,11 @@ export default function Commands() {
     return () => window.removeEventListener("resize", h);
   }, []);
   const [showMenu, setShowMenu] = useState(false);
-  const { isOwner } = useAuth();
-  const { items: customCommands, reload: reloadCustomCommands } = useCustomCommands();
-  const [showAddCommand, setShowAddCommand] = useState(false);
 
-  // Merge custom (owner-added) commands into the static category list.
-  const allCategories = useMemo<Category[]>(() => {
-    const merged = categories.map(c => ({ ...c, commands: [...c.commands] }));
-    for (const cc of customCommands) {
-      const cmd: Command = {
-        name: cc.name,
-        desc:  cc.description,
-        usage: cc.usage ?? undefined,
-        tags:  [cc.commandType === "prefix" ? "prefix" : undefined, cc.isAdmin ? "admin" : undefined].filter(Boolean) as Tag[],
-      };
-      const existing = merged.find(c => c.id === cc.categoryId);
-      if (existing) {
-        existing.commands.push(cmd);
-      } else {
-        merged.push({
-          id: cc.categoryId, label: cc.categoryLabel, color: cc.categoryColor,
-          icon: <Sparkles size={15} />, commands: [cmd],
-        });
-      }
-    }
-    return merged;
-  }, [customCommands]);
+  // The catalogue is the whole catalogue now. Owner-added custom commands used
+  // to be merged in from /api/commands/custom, which a static build cannot
+  // reach — the list below is what ships.
+  const allCategories = categories;
 
   const slashCount  = useMemo(() => allCategories.filter(c => !c.id.startsWith("prefix")).reduce((a, c) => a + c.commands.length, 0), [allCategories]);
   const prefixCount = useMemo(() => allCategories.filter(c => c.id.startsWith("prefix")).reduce((a, c) => a + c.commands.length, 0), [allCategories]);
@@ -393,10 +320,6 @@ export default function Commands() {
             {!isMobile && <>
               <Link href="/"         style={{ color: MUTED, textDecoration: "none", fontSize: 14, fontWeight: 500 }}>Home</Link>
               <Link href="/commands" style={{ color: TEXT,  textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Commands</Link>
-              <Link href="/lore" style={{ color: MUTED, textDecoration: "none", fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 4 }}>
-                <BookOpen size={15} /> Lore
-              </Link>
-              <Link href="/reviews" style={{ color: MUTED, textDecoration: "none", fontSize: 14, fontWeight: 500 }}>Reviews</Link>
             </>}
             {isMobile && (
               <button onClick={() => setShowMenu(v => !v)}
@@ -404,30 +327,16 @@ export default function Commands() {
                 {showMenu ? <X size={16} /> : <Menu size={16} />}
               </button>
             )}
-            {isOwner && (
-              <button onClick={() => setShowAddCommand(true)}
-                style={{ display: "flex", alignItems: "center", gap: 5, backgroundColor: "rgba(184,160,91,0.14)", border: `1px solid ${ACCENT}55`, borderRadius: 8, padding: isMobile ? "6px 8px" : "7px 14px", fontSize: 13, color: ACCENT, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", flexShrink: 0 }}>
-                <Plus size={14} /> {!isMobile && "Add Command"}
-              </button>
-            )}
             <a href={INVITE_URL} target="_blank" rel="noreferrer"
               style={{ backgroundColor: ACCENT, color: "#121212", padding: isMobile ? "7px 12px" : "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
               Invite {!isMobile && <ExternalLink size={12} />}
             </a>
-            <Link href="/servers"
-              style={{ backgroundColor: "rgba(255,255,255,0.06)", color: TEXT, padding: isMobile ? "7px 8px" : "8px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 5, border: `1px solid ${BORDER}`, flexShrink: 0 }}>
-              <LogIn size={14} /> {!isMobile && "Dashboard"}
-            </Link>
           </div>
         </div>
         {isMobile && showMenu && (
           <div style={{ borderTop: `1px solid ${BORDER}`, backgroundColor: "rgba(18,18,18,0.98)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
             <Link href="/" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "10px 8px", borderRadius: 8 }}>Home</Link>
             <Link href="/commands" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 600, padding: "10px 8px", borderRadius: 8 }}>Commands</Link>
-            <Link href="/lore" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "10px 8px", borderRadius: 8, display: "flex", alignItems: "center", gap: 6 }}>
-              <BookOpen size={16} /> Lore
-            </Link>
-            <Link href="/reviews" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "10px 8px", borderRadius: 8 }}>Reviews</Link>
           </div>
         )}
       </nav>
@@ -569,170 +478,6 @@ export default function Commands() {
         </div>
       </div>
 
-      {showAddCommand && (
-        <AddCommandModal
-          categories={allCategories}
-          isMobile={isMobile}
-          onClose={() => setShowAddCommand(false)}
-          onAdded={() => { setShowAddCommand(false); reloadCustomCommands(); }}
-        />
-      )}
-    </div>
-  );
-}
-
-// ── Add Command Modal (owner only) ───────────────────────────────────────────
-const PRESET_COLORS = ["#B8A05B", "#5865F2", "#e74c3c", "#57F287", "#f1c40f", "#9b59b6", "#E67E22", "#1DB954", "#3498db", "#c0392b"];
-
-function AddCommandModal({
-  categories: cats, isMobile, onClose, onAdded,
-}: {
-  categories: Category[];
-  isMobile:   boolean;
-  onClose:    () => void;
-  onAdded:    () => void;
-}) {
-  const [name,        setName]        = useState("");
-  const [description, setDescription] = useState("");
-  const [usage,        setUsage]      = useState("");
-  const [commandType, setCommandType] = useState<"slash" | "prefix">("slash");
-  const [isAdmin,      setIsAdmin]    = useState(false);
-  const [categoryMode, setCategoryMode] = useState<"existing" | "new">("existing");
-  const [categoryId,    setCategoryId]    = useState(cats[0]?.id ?? "");
-  const [newCatLabel,   setNewCatLabel]   = useState("");
-  const [newCatColor,   setNewCatColor]   = useState(PRESET_COLORS[0]);
-  const [submitting,    setSubmitting]    = useState(false);
-  const [error,         setError]         = useState<string | null>(null);
-
-  const selectedExisting = cats.find(c => c.id === categoryId);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || !description.trim()) { setError("Name and description are required."); return; }
-    if (categoryMode === "new" && !newCatLabel.trim()) { setError("Enter a name for the new category."); return; }
-    if (categoryMode === "existing" && !selectedExisting) { setError("Pick a category."); return; }
-
-    setSubmitting(true);
-    setError(null);
-    try {
-      const body = categoryMode === "existing"
-        ? { categoryId: selectedExisting!.id, categoryLabel: selectedExisting!.label, categoryColor: selectedExisting!.color }
-        : { categoryId: newCatLabel.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-"), categoryLabel: newCatLabel.trim(), categoryColor: newCatColor };
-
-      const res = await fetch("/api/commands/custom", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          name: name.trim(), description: description.trim(), usage: usage.trim() || undefined,
-          commandType, isAdmin, ...body,
-        }),
-      });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.error || "Failed to add command");
-      }
-      onAdded();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add command");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%", boxSizing: "border-box", backgroundColor: "#181818", border: `1px solid ${BORDER}`,
-    borderRadius: 8, padding: "10px 12px", color: TEXT, fontSize: 14, outline: "none", fontFamily: "inherit",
-  };
-  const labelStyle: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: MUTED, marginBottom: 6 };
-
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.6)", zIndex: 200, display: "flex", alignItems: isMobile ? "flex-end" : "center", justifyContent: "center", padding: isMobile ? 0 : 20 }}>
-      <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit}
-        style={{ backgroundColor: CARD, border: `1px solid ${BORDER}`, borderRadius: isMobile ? "16px 16px 0 0" : 16, padding: isMobile ? 20 : 28, width: isMobile ? "100%" : 480, maxHeight: "88vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Add Command</h3>
-          <button type="button" onClick={onClose} style={{ background: "none", border: "none", color: MUTED, cursor: "pointer", padding: 4 }}><X size={18} /></button>
-        </div>
-
-        <div>
-          <label style={labelStyle}>Name</label>
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="/mycommand or taxx!mycommand" style={inputStyle} />
-        </div>
-
-        <div>
-          <label style={labelStyle}>Description</label>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2} placeholder="What does this command do?" style={{ ...inputStyle, resize: "vertical" }} />
-        </div>
-
-        <div>
-          <label style={labelStyle}>Usage (optional)</label>
-          <input value={usage} onChange={e => setUsage(e.target.value)} placeholder="/mycommand <arg>" style={inputStyle} />
-        </div>
-
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 140 }}>
-            <label style={labelStyle}>Type</label>
-            <div style={{ display: "flex", gap: 8 }}>
-              {(["slash", "prefix"] as const).map(t => (
-                <button key={t} type="button" onClick={() => setCommandType(t)}
-                  style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1px solid ${commandType === t ? ACCENT : BORDER}`, backgroundColor: commandType === t ? "rgba(184,160,91,0.14)" : "transparent", color: commandType === t ? ACCENT : TEXT, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                  {t === "slash" ? "/slash" : "taxx!"}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ flex: 1, minWidth: 140, display: "flex", alignItems: "flex-end", paddingBottom: 2 }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: TEXT, cursor: "pointer" }}>
-              <input type="checkbox" checked={isAdmin} onChange={e => setIsAdmin(e.target.checked)} />
-              Admin-only command
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <label style={labelStyle}>Category</label>
-          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-            <button type="button" onClick={() => setCategoryMode("existing")}
-              style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${categoryMode === "existing" ? ACCENT : BORDER}`, backgroundColor: categoryMode === "existing" ? "rgba(184,160,91,0.14)" : "transparent", color: categoryMode === "existing" ? ACCENT : TEXT, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-              Existing category
-            </button>
-            <button type="button" onClick={() => setCategoryMode("new")}
-              style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${categoryMode === "new" ? ACCENT : BORDER}`, backgroundColor: categoryMode === "new" ? "rgba(184,160,91,0.14)" : "transparent", color: categoryMode === "new" ? ACCENT : TEXT, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-              New category
-            </button>
-          </div>
-
-          {categoryMode === "existing" ? (
-            <div style={{ position: "relative" }}>
-              <select value={categoryId} onChange={e => setCategoryId(e.target.value)}
-                style={{ ...inputStyle, appearance: "none", cursor: "pointer" }}>
-                {cats.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-              </select>
-              {selectedExisting && (
-                <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", width: 12, height: 12, borderRadius: "50%", backgroundColor: selectedExisting.color, pointerEvents: "none" }} />
-              )}
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <input value={newCatLabel} onChange={e => setNewCatLabel(e.target.value)} placeholder="New category name" style={inputStyle} />
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {PRESET_COLORS.map(color => (
-                  <button key={color} type="button" onClick={() => setNewCatColor(color)}
-                    style={{ width: 26, height: 26, borderRadius: "50%", backgroundColor: color, border: newCatColor === color ? `2px solid ${TEXT}` : "2px solid transparent", cursor: "pointer", padding: 0 }} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {error && <p style={{ color: "#e74c3c", fontSize: 13, margin: 0 }}>{error}</p>}
-
-        <button type="submit" disabled={submitting}
-          style={{ backgroundColor: ACCENT, color: "#121212", border: "none", borderRadius: 10, padding: "12px 0", fontSize: 14, fontWeight: 700, cursor: submitting ? "default" : "pointer", opacity: submitting ? 0.6 : 1, fontFamily: "inherit" }}>
-          {submitting ? "Adding…" : "Add Command"}
-        </button>
-      </form>
     </div>
   );
 }

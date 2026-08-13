@@ -34,18 +34,45 @@ jobs:
       - name: Static checks
         run: node scripts/verify.js
 
-      # Both projects: the SPA and the Worker.
+      # Both projects: the SPA that ships, and the Worker that no longer does
+      # but is still in the tree.
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build the SPA
         run: npm run build
 
-      # Proves the Worker bundles — including the MongoDB driver against
-      # workerd, which is the part most likely to break on a dependency bump.
-      # No credentials needed and nothing is deployed.
+      # The Worker is not deployed any more — the site is a static build on
+      # GitHub Pages. This step stays because worker/ is still in the repo and
+      # a bundle failure is how you find out it has rotted. Drop it, and
+      # worker/ with it, if the API is not coming back.
       - name: Bundle the Worker
         run: npx wrangler deploy --dry-run --outdir .wrangler/ci
+
+      # puppeteer-core drives the Chrome already on the runner, so there is no
+      # ~150MB browser download.
+      - name: Install puppeteer-core
+        run: npm install --no-save --no-fund --no-audit puppeteer-core
+
+      - name: Locate Chrome
+        id: chrome
+        run: |
+          for candidate in /usr/bin/google-chrome /usr/bin/chromium-browser /usr/bin/chromium; do
+            if [ -x "$candidate" ]; then
+              echo "path=$candidate" >> "$GITHUB_OUTPUT"
+              echo "Using $candidate"
+              exit 0
+            fi
+          done
+          echo "No Chrome on the runner image." >&2
+          exit 1
+
+      # A build can pass, every route can return 200, and the app can still
+      # render nothing. Only a browser catches that.
+      - name: Browser checks
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.path }}
+        run: node scripts/browser-check.js
 
       - name: Summary
         if: success()

@@ -8,8 +8,21 @@ type Range = "1d" | "7d" | "30d" | "1y" | "all";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** The bot refreshes botStats on a timer; older than this and it is not up. */
-const LIVE_WINDOW_MS = 15 * 60 * 1000;
+/**
+ * There is no liveness signal to read.
+ *
+ * The bot writes botStats in exactly three places — on ready, on guildCreate
+ * and on guildDelete (see index.js in the bot repo). There is no periodic
+ * heartbeat, so `updatedAt` records the last restart or membership change, not
+ * whether the bot is up: a perfectly healthy bot routinely shows a timestamp
+ * many hours old.
+ *
+ * An earlier version of this file treated "written in the last 15 minutes" as
+ * online, which reported a healthy bot as down almost always. Until the bot
+ * writes a real heartbeat, the honest answer is the one the original server
+ * gave: if the snapshot exists, say online, and publish `lastSeen` so the
+ * figure can be judged for itself.
+ */
 
 // ── Mock growth data ────────────────────────────────────────────────────────
 // Used when guildCounts has nothing for the requested range. Deterministic on
@@ -110,18 +123,16 @@ bot.get("/bot/stats", async (c) => {
       : { servers: null, users: null, updatedAt: null };
   });
 
-  // The Express version derived "uptime" from when the web process started,
-  // which said nothing about the bot. A Worker has no such process at all, so
-  // liveness now comes from how recently the bot wrote its snapshot.
-  const updatedAt = snapshot?.updatedAt ?? null;
-  const online = updatedAt !== null && Date.now() - updatedAt < LIVE_WINDOW_MS;
-
+  // The Express version reported an "uptime" measured from when the web
+  // process started, which said nothing about the bot and cannot exist on a
+  // Worker at all. It is dropped rather than faked; the home page never read
+  // it. `lastSeen` replaces it with something true.
   return c.json({
     servers: snapshot?.servers ?? null,
     users: snapshot?.users ?? null,
     commands: 124,
-    lastSeen: updatedAt,
-    online,
+    lastSeen: snapshot?.updatedAt ?? null,
+    online: snapshot !== null && snapshot.servers !== null,
     connected: snapshot !== null,
   });
 });

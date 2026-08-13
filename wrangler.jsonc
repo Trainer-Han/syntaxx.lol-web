@@ -36,7 +36,7 @@
   // DISCORD_CLIENT_SECRET, SESSION_SECRET, IP_HASH_SALT) are set with
   // `wrangler secret put` and are deliberately absent from this file.
   "vars": {
-    "DISCORD_CLIENT_ID": "",
+    "DISCORD_CLIENT_ID": "1358071643238563932",
     "DISCORD_REDIRECT_URI": "https://syntaxx.lol/api/auth/callback"
   },
 
@@ -46,7 +46,7 @@
   "kv_namespaces": [
     {
       "binding": "SESSIONS",
-      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+      "id": "f6588374eafd42dc967c24fe6a283cf2"
     }
   ],
 
@@ -59,11 +59,22 @@
     {
       "binding": "DB",
       "database_name": "syntaxx-site",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "16580555-c6ac-478a-baf1-f6c1d1a3b008",
       "migrations_dir": "migrations"
     }
   ],
 
+  // Both entries are needed: a Worker attached to syntaxx.lol does not receive
+  // requests for www.syntaxx.lol. Cloudflare creates the DNS records and issues
+  // the certificates itself.
+  //
+  // These require syntaxx.lol to be an ACTIVE Cloudflare zone — unlike Pages, a
+  // CNAME from external DNS does not work. While the zone is still Pending,
+  // `wrangler deploy` fails with these present, so nothing should be deployed
+  // until the dashboard shows Active.
+  //
+  // "workers_dev" is deliberately absent: adding routes makes it default to
+  // false, which is what we want — the site is served from syntaxx.lol only.
   "routes": [
     { "pattern": "syntaxx.lol", "custom_domain": true },
     { "pattern": "www.syntaxx.lol", "custom_domain": true }

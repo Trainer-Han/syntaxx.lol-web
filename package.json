@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "syntaxx.lol — the Syntaxx Discord bot's website and dashboard, on Cloudflare Workers",
+  "description": "syntaxx.lol — the Syntaxx Discord bot's website, a static build on GitHub Pages",
   "scripts": {
     "dev": "vite",
     "dev:api": "wrangler dev",
     "build": "vite build",
     "typecheck": "tsc --build --force",
     "verify": "node scripts/verify.js",
-    "deploy": "npm run build && wrangler deploy"
+    "browser-check": "node scripts/browser-check.js"
   },
   "dependencies": {
     "hono": "^4.13.1",
