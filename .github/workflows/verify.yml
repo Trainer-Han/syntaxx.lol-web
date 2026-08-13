@@ -34,16 +34,18 @@ jobs:
       - name: Static checks
         run: node scripts/verify.js
 
-      # Both projects: the SPA and the Worker.
+      # Both projects: the SPA that ships, and the Worker that no longer does
+      # but is still in the tree.
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build the SPA
         run: npm run build
 
-      # Proves the Worker bundles — including the MongoDB driver against
-      # workerd, which is the part most likely to break on a dependency bump.
-      # No credentials needed and nothing is deployed.
+      # The Worker is not deployed any more — the site is a static build on
+      # GitHub Pages. This step stays because worker/ is still in the repo and
+      # a bundle failure is how you find out it has rotted. Drop it, and
+      # worker/ with it, if the API is not coming back.
       - name: Bundle the Worker
         run: npx wrangler deploy --dry-run --outdir .wrangler/ci
 

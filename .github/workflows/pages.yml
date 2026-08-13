@@ -1,0 +1,71 @@
+name: Deploy site
+
+# Only live-website deploys. Pushing to main can never reach syntaxx.lol.
+#
+# The branch split is unchanged from the Cloudflare setup that came before it:
+# the merge into live-website *is* the deploy decision, and that merge stays a
+# human action. Only the target changed — GitHub Pages instead of a Worker.
+on:
+  push:
+    branches: [live-website]
+  workflow_dispatch:
+
+# Pages deployments need these three. `id-token` is what lets the deploy step
+# prove to Pages that it came from this workflow run.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. `cancel-in-progress: false` because cancelling a
+# half-finished deploy is how you end up serving a partial site.
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci --no-fund --no-audit
+
+      - name: Static checks
+        run: node scripts/verify.js
+
+      - name: Build the SPA
+        run: npm run build
+
+      # dist/client already contains CNAME, .nojekyll and the 404.html fallback:
+      # CNAME and .nojekyll are copied from web/public, and 404.html is written
+      # by the spaFallback plugin in vite.config.ts.
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist/client
+
+  deploy:
+    name: deploy
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Summary
+        if: success()
+        run: echo "Deployed to https://syntaxx.lol" >> "$GITHUB_STEP_SUMMARY"

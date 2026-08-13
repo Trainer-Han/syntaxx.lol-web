@@ -6,8 +6,8 @@
  * succeed, a typecheck can pass, every route can answer HTTP 200 — and the app
  * can still render nothing. Only a browser catches that.
  *
- * It serves `dist/client` the way the Worker does, including falling back to
- * index.html for unknown paths, so client-side routes are exercised properly.
+ * It serves `dist/client` the way GitHub Pages does, including serving
+ * 404.html for unknown paths, so client-side routes are exercised properly.
  *
  * Requires puppeteer-core and an already-installed Chrome, so there is no
  * ~150MB browser download:
@@ -24,7 +24,20 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist", "client");
 
-const ROUTES = ["/", "/commands", "/lore", "/reviews", "/servers", "/terms", "/privacy", "/verify"];
+// Every route the static build serves, plus one that must land on the 404 page
+// and still render — that path is what proves the 404.html fallback works.
+//
+// `notFound` marks the one route expected to answer 404: Chrome logs a console
+// error for a 404 document, which is correct there and a real failure anywhere
+// else. A real route answering 404 means vite.config.ts's ROUTES list has
+// drifted from App.tsx's routes.
+const ROUTES = [
+  { path: "/", notFound: false },
+  { path: "/commands", notFound: false },
+  { path: "/terms", notFound: false },
+  { path: "/privacy", notFound: false },
+  { path: "/no-such-page", notFound: true },
+];
 
 // Both are checked: the ad strips render only on wide screens, and the narrow
 // case is where the AdSense zero-width TagError used to fire.
@@ -41,9 +54,8 @@ const TYPES = {
 };
 
 // Requests the page is expected to fail: ad and analytics hosts are blocked in
-// plenty of environments, and /api needs a Worker that is not running here.
-// `recaptcha` is here because the AdSense script loads a reCAPTCHA frame and
-// then aborts it itself; it is Google's noise, not ours.
+// plenty of environments. `recaptcha` is here because the AdSense script loads
+// a reCAPTCHA frame and then aborts it itself; it is Google's noise, not ours.
 const EXPECTED_FAILURES =
   /googlesyndication|doubleclick|google-analytics|adtrafficquality|google\.com\/recaptcha/;
 
@@ -51,24 +63,21 @@ async function serve() {
   const server = createServer(async (req, res) => {
     const path = decodeURIComponent(new URL(req.url, "http://x").pathname);
 
-    if (path.startsWith("/api/")) {
-      // No Worker here. Answer the shape the SPA expects rather than a 404
-      // that would look like a broken deployment.
-      res.writeHead(401, { "content-type": "application/json" });
-      res.end(JSON.stringify({ user: null, guilds: [] }));
-      return;
-    }
-
     let file = join(dist, path);
+    let status = 200;
     try {
       if ((await stat(file)).isDirectory()) file = join(file, "index.html");
     } catch {
-      file = join(dist, "index.html"); // SPA fallback, as not_found_handling does
+      // Exactly what Pages does with an unmatched path: serve 404.html, with
+      // the 404 status intact. If the build did not emit it, this check fails
+      // here rather than in production.
+      file = join(dist, "404.html");
+      status = 404;
     }
 
     try {
       const body = await readFile(file);
-      res.writeHead(200, { "content-type": TYPES[extname(file)] ?? "application/octet-stream" });
+      res.writeHead(status, { "content-type": TYPES[extname(file)] ?? "application/octet-stream" });
       res.end(body);
     } catch {
       res.writeHead(404).end("not found");
@@ -102,17 +111,16 @@ const browser = await puppeteer.launch({
 const problems = [];
 
 for (const viewport of VIEWPORTS) {
-  for (const route of ROUTES) {
+  for (const { path: route, notFound } of ROUTES) {
     const page = await browser.newPage();
     await page.setViewport({ width: viewport.width, height: viewport.height });
 
     const where = `${route} @ ${viewport.name}`;
     page.on("pageerror", (e) => problems.push(`${where}: uncaught ${e.name}: ${e.message}`));
     page.on("console", (m) => {
-      if (m.type() === "error" && !EXPECTED_FAILURES.test(m.text())) {
-        // A 401 from /api is the signed-out state, not a failure.
-        if (!/status of 401/.test(m.text())) problems.push(`${where}: console error: ${m.text().slice(0, 160)}`);
-      }
+      if (m.type() !== "error" || EXPECTED_FAILURES.test(m.text())) return;
+      if (notFound && /status of 404/.test(m.text())) return;
+      problems.push(`${where}: console error: ${m.text().slice(0, 160)}`);
     });
     page.on("requestfailed", (r) => {
       if (!EXPECTED_FAILURES.test(r.url())) {
@@ -120,12 +128,21 @@ for (const viewport of VIEWPORTS) {
       }
     });
 
+    let response;
     try {
-      await page.goto(origin + route, { waitUntil: "networkidle2", timeout: 45000 });
+      response = await page.goto(origin + route, { waitUntil: "networkidle2", timeout: 45000 });
     } catch (e) {
       problems.push(`${where}: navigation failed: ${String(e).slice(0, 140)}`);
       await page.close();
       continue;
+    }
+
+    // A real route answering 404 renders fine but tells crawlers the page does
+    // not exist, so it is a failure here, not a cosmetic detail.
+    const status = response?.status();
+    const wanted = notFound ? 404 : 200;
+    if (status !== wanted) {
+      problems.push(`${where}: expected HTTP ${wanted}, got ${status} — is the route in vite.config.ts's ROUTES?`);
     }
 
     const info = await page.evaluate(() => {

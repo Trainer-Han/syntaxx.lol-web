@@ -6,20 +6,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import AdBanner from "@/components/AdBanner";
 
 // Home is eager: it is the landing page, and code-splitting it would only add
-// a loading flash to the one route most visitors see first. Everything else is
-// lazy — Dashboard, Commands and Lore are the three biggest pages in the app,
-// and none of them are on the path from a cold visit to the invite button.
+// a loading flash to the one route most visitors see first. Commands is lazy —
+// it is by far the biggest page left, and it is not on the path from a cold
+// visit to the invite button.
 import Home from "@/pages/Home";
 
 const Commands = lazy(() => import("@/pages/Commands"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Lore = lazy(() => import("@/pages/Lore"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
-const Reviews = lazy(() => import("@/pages/Reviews"));
-const Servers = lazy(() => import("@/pages/Servers"));
 const Terms = lazy(() => import("@/pages/Terms"));
-const Verify = lazy(() => import("@/pages/Verify"));
 
 const queryClient = new QueryClient();
 
@@ -88,6 +83,12 @@ function PageFallback() {
   return <div style={{ minHeight: "100vh", background: "hsl(var(--background))" }} />;
 }
 
+/**
+ * The site is a static build on GitHub Pages, so every route here has to render
+ * from what is in the bundle. The dashboard, login, verification, reviews and
+ * lore routes are gone with the Worker that served their data — see README's
+ * "What this deployment is not".
+ */
 function Router() {
   return (
     <Switch>
@@ -95,12 +96,6 @@ function Router() {
       <Route path="/commands" component={Commands} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
-      <Route path="/servers" component={Servers} />
-      <Route path="/dashboard/:id" component={Dashboard} />
-      <Route path="/verify" component={Verify} />
-      <Route path="/lore/:serverId" component={Lore} />
-      <Route path="/lore" component={Lore} />
-      <Route path="/reviews" component={Reviews} />
       <Route component={NotFound} />
     </Switch>
   );
