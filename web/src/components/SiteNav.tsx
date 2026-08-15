@@ -179,24 +179,14 @@ export default function SiteNav({ current }: { current: NavPage }) {
             href={INVITE_URL}
             target="_blank"
             rel="noreferrer"
-            className="btn-gold"
+            className="sx-btn sx-btn--primary sx-btn--sm"
             // "Invite" alone gives no clue where the link goes or that it
             // leaves the site. Screen readers announce this instead.
             aria-label="Invite Syntaxx to your Discord server (opens in a new tab)"
-            style={{
-              backgroundColor: GOLD,
-              color: INK,
-              padding: isMobile ? "8px 14px" : "9px 20px",
-              borderRadius: RADIUS.md,
-              fontSize: isMobile ? 13 : 14,
-              fontWeight: 700,
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              flexShrink: 0,
-              letterSpacing: "-0.01em",
-            }}
+            // Geometry, colour and every interaction state come from sx-btn.
+            // Only flex-shrink is set here, and only because the nav is the one
+            // place this button sits in a row that can run out of room.
+            style={{ flexShrink: 0 }}
           >
             Invite
             <ExternalLink size={13} aria-hidden="true" />

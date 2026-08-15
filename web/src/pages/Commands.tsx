@@ -10,9 +10,9 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import { useIsMobile } from "@/hooks/use-media-query";
 import {
-  PAGE, INK, SURFACE, SURFACE_2, BORDER, BORDER_SUBTLE,
-  TEXT, MUTED, SUBTLE, GOLD, GOLD_BRIGHT, HUE, GREEN, ORANGE, RED,
-  RADIUS, LAYOUT, FONT_MONO, GOLD_GRADIENT, SHADOW, alpha,
+  PAGE, SURFACE, SURFACE_2, BORDER, BORDER_SUBTLE,
+  TEXT, MUTED, SUBTLE, GOLD, HUE, GREEN, ORANGE, RED,
+  RADIUS, LAYOUT, FONT_MONO, GOLD_GRADIENT, alpha,
 } from "@/theme";
 
 const ACCENT = GOLD;
@@ -486,14 +486,8 @@ export default function Commands() {
                 has to work out which control to undo. */}
             <button
               type="button"
-              className="btn-ghost"
+              className="sx-btn sx-btn--ghost sx-btn--sm"
               onClick={() => { setQuery(""); setActiveCat(ALL_ID); }}
-              style={{
-                background: "rgba(255,255,255,0.04)", color: TEXT,
-                border: `1px solid ${BORDER}`, borderRadius: RADIUS.md,
-                padding: "10px 22px", fontSize: 14, fontWeight: 600,
-                cursor: "pointer", fontFamily: "inherit",
-              }}
             >
               Clear filters
             </button>
@@ -619,14 +613,8 @@ export default function Commands() {
             href={INVITE_URL}
             target="_blank"
             rel="noreferrer"
-            className="btn-gold"
+            className="sx-btn sx-btn--primary"
             aria-label="Invite Syntaxx to your Discord server (opens in a new tab)"
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              background: `linear-gradient(135deg, ${GOLD_BRIGHT} 0%, ${GOLD} 100%)`,
-              color: INK, padding: "14px 32px", borderRadius: RADIUS.md,
-              fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: SHADOW.gold,
-            }}
           >
             Invite Syntaxx <ExternalLink size={15} aria-hidden="true" />
           </a>

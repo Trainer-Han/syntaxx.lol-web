@@ -306,30 +306,11 @@
   text-underline-offset: 3px;
 }
 
-/* Primary gold action. The lift is small on purpose: a 1px rise plus a warmer
-   shadow reads as "pressable" without the button appearing to jump. */
-.btn-gold {
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-}
-.btn-gold:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.06);
-  box-shadow: 0 8px 24px rgba(216, 185, 107, 0.28);
-}
-.btn-gold:active {
-  transform: translateY(0);
-  filter: brightness(0.96);
-}
-
-/* Secondary / outline action. */
-.btn-ghost {
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-.btn-ghost:hover {
-  background-color: rgba(255, 255, 255, 0.06);
-  border-color: rgba(216, 185, 107, 0.45);
-  color: #F5F5F7;
-}
+/* Buttons live in web/src/styles/sx-btn.css, not here. There were briefly two
+   button systems — .btn-gold/.btn-ghost in this file and .sx-btn over there —
+   which is the same duplication this refresh existed to remove. sx-btn won: it
+   gates its hover on (hover: hover), handles reduced motion, and carries the
+   shine sweep. Add button states there. */
 
 /* Card hover. Commands' command cards had no hover state at all, so a grid of
    240 of them gave no feedback that the pointer was over anything. */

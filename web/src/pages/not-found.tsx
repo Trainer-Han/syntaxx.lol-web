@@ -1,155 +1,180 @@
-import { Link } from "wouter";
-import { Home, Terminal, Compass } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { Link, useLocation } from "wouter";
 import logoUrl from "/syntaxx-logo.png";
-import SiteNav from "@/components/SiteNav";
-import SiteFooter from "@/components/SiteFooter";
-import { useIsMobile } from "@/hooks/use-media-query";
-import {
-  PAGE, INK, SURFACE, BORDER, TEXT, MUTED, SUBTLE,
-  GOLD, GOLD_BRIGHT, PLATINUM, RADIUS, LAYOUT, GOLD_GRADIENT, SHADOW, alpha,
-} from "@/theme";
+import "@/styles/sx-btn.css";
+import "./not-found.css";
 
-/**
- * The 404 page.
- *
- * What shipped here was the scaffold's placeholder: a light-mode card on
- * `bg-gray-50` — the only page on a near-black site that flashed white — under
- * the message "Did you forget to add the page to the router?" That is a note
- * from one developer to another, addressed to a visitor who mistyped a URL and
- * has no idea what a router is.
- *
- * This page carries real traffic. GitHub Pages serves 404.html for every
- * unmatched path, and vite.config.ts emits the app shell as that file, so any
- * mistyped or stale link lands here.
- */
+const IDLE_MESSAGES = [
+  "No destination found.",
+  "Route unresolved.",
+  "Signal lost on this path.",
+] as const;
+
+const SCAN_SEQUENCE = [
+  "Searching…",
+  "Nothing here.",
+  "Let's get you somewhere useful.",
+] as const;
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false,
+  );
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReduced(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  return reduced;
+}
+
 export default function NotFound() {
-  const isMobile = useIsMobile();
+  const [, setLocation] = useLocation();
+  const reducedMotion = usePrefersReducedMotion();
+  const scanningRef = useRef(false);
+  const timersRef = useRef<number[]>([]);
+  const idleIndexRef = useRef(0);
 
-  const destinations = [
-    { href: "/", icon: Home, label: "Home", desc: "What Syntaxx does" },
-    { href: "/commands", icon: Terminal, label: "Commands", desc: "All 100+ commands" },
-  ];
+  const [aiLabel, setAiLabel] = useState<string>(IDLE_MESSAGES[0]);
+  const [scanning, setScanning] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const id = window.setInterval(() => {
+      if (scanningRef.current) return;
+      idleIndexRef.current = (idleIndexRef.current + 1) % IDLE_MESSAGES.length;
+      setAiLabel(IDLE_MESSAGES[idleIndexRef.current] ?? IDLE_MESSAGES[0]);
+    }, 4200);
+    return () => window.clearInterval(id);
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    return () => {
+      for (const t of timersRef.current) window.clearTimeout(t);
+      timersRef.current = [];
+    };
+  }, []);
+
+  const runScan = useCallback(() => {
+    if (scanningRef.current) return;
+    scanningRef.current = true;
+    setScanning(true);
+
+    for (const t of timersRef.current) window.clearTimeout(t);
+    timersRef.current = [];
+
+    SCAN_SEQUENCE.forEach((msg, i) => {
+      const id = window.setTimeout(() => setAiLabel(msg), i * 700);
+      timersRef.current.push(id);
+    });
+
+    const done = window.setTimeout(() => {
+      scanningRef.current = false;
+      setScanning(false);
+      setAiLabel(IDLE_MESSAGES[idleIndexRef.current] ?? IDLE_MESSAGES[0]);
+    }, SCAN_SEQUENCE.length * 700 + 400);
+    timersRef.current.push(done);
+  }, []);
+
+  const goHome = useCallback(
+    (e: MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      if (leaving) return;
+      if (reducedMotion) {
+        setLocation("/");
+        return;
+      }
+      setLeaving(true);
+      const id = window.setTimeout(() => setLocation("/"), 420);
+      timersRef.current.push(id);
+    },
+    [leaving, reducedMotion, setLocation],
+  );
+
+  const goBack = useCallback(() => {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    setLocation("/");
+  }, [setLocation]);
 
   return (
-    <div style={PAGE}>
-      <a className="skip-link" href="#main">Skip to content</a>
-      {/* "none", not "home": this is not the home page, so no nav item should
-          be marked current, and the "Features" anchor must not appear — there
-          is no #features section here for it to reach. */}
-      <SiteNav current="none" />
+    <main
+      className={`nf-page${leaving ? " nf-leaving" : ""}`}
+      aria-labelledby="nf-heading"
+    >
+      <div className="nf-atmosphere nf-enter-bg" aria-hidden="true">
+        <div className="nf-glow nf-glow--a" />
+        <div className="nf-glow nf-glow--b" />
+        <div className="nf-glow nf-glow--c" />
+        <div className="nf-scanline" />
+        <div className="nf-grain" />
+      </div>
 
-      <main
-        id="main"
-        style={{
-          maxWidth: 640,
-          margin: "0 auto",
-          padding: `${isMobile ? 64 : 100}px ${isMobile ? LAYOUT.gutterMobile : LAYOUT.gutter}px ${isMobile ? 64 : 96}px`,
-          textAlign: "center",
-          position: "relative",
-        }}
-      >
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)",
-            width: "min(520px, 100%)", height: 300, pointerEvents: "none", zIndex: 0,
-            // Explicit ellipse radii so the glow fades out inside its own box
-            // on both axes; the default farthest-corner sizing leaves colour
-            // at the nearer edges and draws a visible rectangle.
-            background: `radial-gradient(ellipse 46% 46% at 50% 45%, ${alpha(GOLD, 0.12)} 0%, ${alpha(GOLD, 0)} 100%)`,
-          }}
-        />
+      <Link href="/" className="nf-brand nf-enter-brand" aria-label="Syntaxx home">
+        <img src={logoUrl} alt="" width={120} height={28} />
+        <span>syntaxx.LOL</span>
+      </Link>
 
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <img
-            src={logoUrl}
-            alt=""
-            width={68}
-            height={68}
-            // `margin: 0 auto` rather than text-align: Tailwind's preflight
-            // makes images display:block, which text-align cannot centre.
-            style={{ width: 68, height: 68, margin: "0 auto 26px", opacity: 0.85, filter: `drop-shadow(0 6px 24px ${alpha(GOLD, 0.26)})` }}
-          />
-
-          <p
-            style={{
-              fontSize: isMobile ? 64 : 84, fontWeight: 800, lineHeight: 1,
-              margin: "0 0 14px", letterSpacing: "-0.05em",
-              background: GOLD_GRADIENT,
-              WebkitBackgroundClip: "text", backgroundClip: "text",
-              WebkitTextFillColor: "transparent", color: GOLD,
-            }}
-          >
-            404
-          </p>
-
-          <h1 style={{ fontSize: isMobile ? 24 : 30, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.03em", color: TEXT }}>
-            This page doesn't exist
-          </h1>
-          <p style={{ color: MUTED, fontSize: 16, lineHeight: 1.7, margin: "0 auto 36px", maxWidth: 420 }}>
-            The link may be out of date, or the address may have a typo in it.
-            Here's where to go instead.
-          </p>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
-              gap: 12, marginBottom: 32, textAlign: "left",
-            }}
-          >
-            {destinations.map((d) => (
-              <Link
-                key={d.href}
-                href={d.href}
-                className="card-lift"
-                style={{
-                  display: "flex", alignItems: "center", gap: 13,
-                  backgroundColor: SURFACE, border: `1px solid ${BORDER}`,
-                  borderRadius: RADIUS.lg, padding: "16px 18px", textDecoration: "none",
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{
-                    width: 38, height: 38, flexShrink: 0, borderRadius: RADIUS.md,
-                    backgroundColor: alpha(GOLD, 0.12),
-                    border: `1px solid ${alpha(GOLD, 0.2)}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
-                >
-                  <d.icon size={17} color={GOLD} />
-                </span>
-                <span>
-                  <span style={{ display: "block", color: TEXT, fontWeight: 600, fontSize: 15 }}>{d.label}</span>
-                  <span style={{ display: "block", color: SUBTLE, fontSize: 13, marginTop: 2 }}>{d.desc}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
-
-          <Link
-            href="/"
-            className="btn-gold"
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 9,
-              background: `linear-gradient(135deg, ${GOLD_BRIGHT} 0%, ${GOLD} 100%)`,
-              color: INK, padding: "14px 32px", borderRadius: RADIUS.md,
-              fontSize: 15, fontWeight: 700, textDecoration: "none", boxShadow: SHADOW.gold,
-            }}
-          >
-            <Compass size={16} aria-hidden="true" /> Back to home
-          </Link>
-
-          <p style={{ color: SUBTLE, fontSize: 13, marginTop: 28, marginBottom: 0 }}>
-            Looking for the dashboard? It isn't part of{" "}
-            <span style={{ color: PLATINUM }}>syntaxx.lol</span> — everything is
-            configured from inside Discord with the setup commands.
-          </p>
+      <div className="nf-stage">
+        <div className="nf-orb nf-enter-1" aria-hidden="true">
+          <div className="nf-orb__ring" />
+          <span className="nf-orb__code">404</span>
         </div>
-      </main>
 
-      <SiteFooter />
-    </div>
+        <div className="nf-glass nf-enter-2">
+          <div className="nf-glass__inner">
+            <button
+              type="button"
+              className="nf-status nf-enter-3"
+              onClick={runScan}
+              aria-label="Rescan for this destination"
+            >
+              <span
+                className={`nf-status__dot${scanning ? " nf-status__dot--scan" : ""}`}
+                aria-hidden="true"
+              />
+              Signal lost · 404
+            </button>
+
+            <h1 id="nf-heading" className="nf-title nf-enter-4">
+              We couldn&apos;t find that destination.
+            </h1>
+
+            <p className="nf-copy nf-enter-4">
+              The page you&apos;re looking for may have moved, been removed, or never
+              existed in the first place.
+            </p>
+
+            <div className="nf-ai nf-enter-5" aria-live="polite">
+              <span className="nf-ai__orb" aria-hidden="true" />
+              <span className="nf-ai__label">{aiLabel}</span>
+            </div>
+
+            <div className="nf-actions nf-enter-6">
+              <a href="/" className="sx-btn sx-btn--primary" onClick={goHome}>
+                Return Home
+                <span className="sx-btn__arrow" aria-hidden="true">
+                  →
+                </span>
+              </a>
+              <button type="button" className="sx-btn sx-btn--ghost" onClick={goBack}>
+                Go Back
+              </button>
+            </div>
+
+            <p className="nf-footnote nf-enter-6">syntaxx · route unresolved</p>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

@@ -10,9 +10,9 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import { useIsMobile } from "@/hooks/use-media-query";
 import {
-  PAGE, INK, SURFACE, BORDER, TEXT, MUTED, SUBTLE,
-  GOLD, GOLD_BRIGHT, PLATINUM, GREEN, HUE,
-  RADIUS, LAYOUT, GOLD_GRADIENT, SHADOW, alpha,
+  PAGE, SURFACE, BORDER, TEXT, MUTED, SUBTLE,
+  GOLD, PLATINUM, GREEN, HUE,
+  RADIUS, LAYOUT, GOLD_GRADIENT, alpha,
 } from "@/theme";
 
 const features = [
@@ -155,28 +155,12 @@ export default function Home() {
                 href={INVITE_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="btn-gold"
+                className="sx-btn sx-btn--primary sx-btn--lg"
                 aria-label="Invite Syntaxx to your Discord server (opens in a new tab)"
-                style={{
-                  background: `linear-gradient(135deg, ${GOLD_BRIGHT} 0%, ${GOLD} 100%)`,
-                  color: INK, padding: "15px 34px", borderRadius: RADIUS.md,
-                  fontSize: 16, fontWeight: 700, textDecoration: "none",
-                  display: "inline-flex", alignItems: "center", gap: 9,
-                  boxShadow: SHADOW.gold, letterSpacing: "-0.01em",
-                }}
               >
                 Invite Bot <ExternalLink size={16} aria-hidden="true" />
               </a>
-              <Link
-                href="/commands"
-                className="btn-ghost"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.04)", color: TEXT,
-                  padding: "15px 30px", borderRadius: RADIUS.md, fontSize: 16,
-                  fontWeight: 600, textDecoration: "none", border: `1px solid ${BORDER}`,
-                  display: "inline-flex", alignItems: "center", gap: 9,
-                }}
-              >
+              <Link href="/commands" className="sx-btn sx-btn--ghost sx-btn--lg">
                 <Terminal size={16} aria-hidden="true" /> Browse commands
               </Link>
             </div>
@@ -293,14 +277,8 @@ export default function Home() {
               href={INVITE_URL}
               target="_blank"
               rel="noreferrer"
-              className="btn-gold"
+              className="sx-btn sx-btn--primary sx-btn--lg"
               aria-label="Invite Syntaxx to your Discord server (opens in a new tab)"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 9,
-                background: `linear-gradient(135deg, ${GOLD_BRIGHT} 0%, ${GOLD} 100%)`,
-                color: INK, padding: "15px 38px", borderRadius: RADIUS.md,
-                fontSize: 16, fontWeight: 700, textDecoration: "none", boxShadow: SHADOW.gold,
-              }}
             >
               Invite Syntaxx <ExternalLink size={16} aria-hidden="true" />
             </a>
@@ -357,15 +335,8 @@ export default function Home() {
                 href="https://www.buymeacoffee.com/syntaxx.lol"
                 target="_blank"
                 rel="noreferrer"
-                className="btn-gold"
+                className="sx-btn sx-btn--primary"
                 aria-label="Buy me a coffee on Buy Me a Coffee (opens in a new tab)"
-                style={{
-                  display: "inline-flex", alignItems: "center", gap: 10,
-                  background: `linear-gradient(135deg, ${GOLD_BRIGHT} 0%, ${GOLD} 100%)`,
-                  color: INK, padding: isMobile ? "13px 28px" : "15px 38px",
-                  borderRadius: RADIUS.md, fontSize: 16, fontWeight: 700,
-                  textDecoration: "none", boxShadow: SHADOW.gold, letterSpacing: "-0.01em",
-                }}
               >
                 ☕ Buy me a coffee
               </a>
