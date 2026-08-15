@@ -14,10 +14,6 @@
   --nf-radius: 22px;
   --nf-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --nf-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
-  --nf-mx: 50%;
-  --nf-my: 42%;
-  --nf-rx: 0deg;
-  --nf-ry: 0deg;
 
   position: relative;
   isolation: isolate;
@@ -92,17 +88,24 @@
   mix-blend-mode: overlay;
 }
 
-.nf-pointer-light {
+/* Slow signal beam — replaces cursor tilt/follow */
+.nf-scanline {
   position: absolute;
-  width: 420px;
-  height: 420px;
-  margin: -210px 0 0 -210px;
-  left: var(--nf-mx);
-  top: var(--nf-my);
-  background: radial-gradient(circle, rgba(184, 160, 91, 0.16) 0%, transparent 65%);
+  left: 0;
+  right: 0;
+  height: 1px;
+  top: -10%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(184, 160, 91, 0) 15%,
+    rgba(184, 160, 91, 0.45) 50%,
+    rgba(184, 160, 91, 0) 85%,
+    transparent 100%
+  );
+  box-shadow: 0 0 24px 2px rgba(184, 160, 91, 0.18);
+  animation: nf-scan 9s linear infinite;
   opacity: 0.7;
-  transition: opacity 0.4s var(--nf-ease-out);
-  will-change: left, top;
 }
 
 /* ── Brand mark ──────────────────────────────────────────────────────────── */
@@ -110,11 +113,14 @@
 .nf-brand {
   position: absolute;
   top: max(20px, env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: max-content;
+  z-index: 5;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   text-decoration: none;
   color: var(--nf-text);
@@ -153,27 +159,25 @@
   width: min(100%, 560px);
   display: grid;
   place-items: center;
-  perspective: 1200px;
 }
 
-/* Floating orb — sits slightly behind / beside the panel */
+/* Floating orb — in front of the glass, overlapping the top-right corner */
 
 .nf-orb {
   position: absolute;
-  right: -6%;
-  top: -18%;
+  right: -4%;
+  top: -16%;
   width: clamp(96px, 22vw, 148px);
   height: clamp(96px, 22vw, 148px);
   border-radius: 50%;
   display: grid;
   place-items: center;
-  z-index: 1;
+  z-index: 4;
   pointer-events: none;
-  transform: translate3d(0, 0, -40px);
   animation: nf-float 7.5s var(--nf-ease-move) infinite;
   /* fallback */
-  background: rgba(30, 28, 24, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(30, 28, 24, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow:
     0 18px 50px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.35),
@@ -220,10 +224,6 @@
   width: 100%;
   border-radius: var(--nf-radius);
   padding: clamp(28px, 5vw, 44px) clamp(22px, 4.5vw, 40px);
-  transform: rotateX(var(--nf-rx)) rotateY(var(--nf-ry));
-  transform-style: preserve-3d;
-  transition: transform 0.35s var(--nf-ease-out);
-  will-change: transform;
   /* fallback-first */
   background: rgba(28, 28, 30, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -255,13 +255,19 @@
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(
-      480px circle at var(--nf-mx) var(--nf-my),
-      rgba(255, 255, 255, 0.18),
-      transparent 42%
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      transparent 38%,
+      rgba(255, 255, 255, 0.14) 50%,
+      transparent 62%,
+      transparent 100%
     ),
-    linear-gradient(165deg, rgba(255, 255, 255, 0.22), transparent 38%);
-  opacity: 0.55;
+    linear-gradient(165deg, rgba(255, 255, 255, 0.18), transparent 40%);
+  background-size: 220% 100%, 100% 100%;
+  background-position: 120% 0, 0 0;
+  animation: nf-sheen 7.5s var(--nf-ease-move) infinite;
+  opacity: 0.7;
   mix-blend-mode: soft-light;
   z-index: 0;
 }
@@ -410,97 +416,6 @@
   gap: 12px;
 }
 
-.nf-btn {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 0 22px;
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  transition:
-    transform 0.15s var(--nf-ease-out),
-    background 0.2s ease,
-    box-shadow 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.nf-btn:focus-visible {
-  outline: 2px solid var(--nf-accent);
-  outline-offset: 3px;
-}
-
-.nf-btn--primary {
-  position: relative;
-  overflow: hidden;
-  background: var(--nf-accent);
-  color: #121212;
-  box-shadow:
-    0 10px 28px rgba(184, 160, 91, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.nf-btn--primary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 48%, transparent 62%);
-  transform: translateX(-120%);
-  transition: transform 0.55s var(--nf-ease-out);
-  pointer-events: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .nf-btn--primary:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      0 14px 32px rgba(184, 160, 91, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  }
-
-  .nf-btn--primary:hover::before {
-    transform: translateX(120%);
-  }
-
-  .nf-btn--primary:hover .nf-btn__arrow {
-    transform: translateX(3px);
-  }
-}
-
-.nf-btn--primary:active {
-  transform: scale(0.98);
-}
-
-.nf-btn__arrow {
-  display: inline-block;
-  transition: transform 0.2s var(--nf-ease-out);
-}
-
-.nf-btn--ghost {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--nf-text);
-  border: 1px solid var(--nf-border);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .nf-btn--ghost:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(184, 160, 91, 0.35);
-  }
-}
-
-.nf-btn--ghost:active {
-  transform: scale(0.98);
-}
-
 .nf-footnote {
   margin-top: 22px;
   font-size: 12px;
@@ -512,6 +427,11 @@
 
 .nf-enter-bg {
   animation: nf-fade 0.7s var(--nf-ease-out) both;
+}
+
+/* Brand must not use transform-based enter — that fought horizontal centering */
+.nf-enter-brand {
+  animation: nf-fade 0.55s var(--nf-ease-out) 0.08s both;
 }
 
 .nf-enter-1 {
@@ -584,8 +504,8 @@
 }
 
 @keyframes nf-float {
-  0%, 100% { transform: translate3d(0, 0, -40px); }
-  50% { transform: translate3d(0, -10px, -40px); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes nf-pulse-ring {
@@ -602,6 +522,18 @@
 @keyframes nf-dot-scan {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.35; transform: scale(0.85); }
+}
+
+@keyframes nf-scan {
+  0% { top: -8%; opacity: 0; }
+  8% { opacity: 0.7; }
+  92% { opacity: 0.7; }
+  100% { top: 108%; opacity: 0; }
+}
+
+@keyframes nf-sheen {
+  0%, 18% { background-position: 130% 0, 0 0; }
+  55%, 100% { background-position: -30% 0, 0 0; }
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
@@ -621,6 +553,7 @@
     width: 96px;
     height: 96px;
     animation-duration: 8.5s;
+    z-index: 4;
   }
 
   .nf-stage {
@@ -636,12 +569,8 @@
     align-items: stretch;
   }
 
-  .nf-btn {
+  .nf-actions .sx-btn {
     width: 100%;
-  }
-
-  .nf-pointer-light {
-    display: none;
   }
 }
 
@@ -651,8 +580,8 @@
   }
 
   .nf-orb {
-    right: -12%;
-    top: -10%;
+    right: -8%;
+    top: -12%;
   }
 }
 
@@ -665,11 +594,14 @@
   .nf-orb,
   .nf-orb__ring,
   .nf-status__dot,
-  .nf-ai__orb::after {
+  .nf-ai__orb::after,
+  .nf-scanline,
+  .nf-glass::before {
     animation: none !important;
   }
 
   .nf-enter-bg,
+  .nf-enter-brand,
   .nf-enter-1,
   .nf-enter-2,
   .nf-enter-3,
@@ -680,15 +612,10 @@
   }
 
   .nf-glass {
-    transition: none;
     transform: none !important;
   }
 
-  .nf-pointer-light {
-    display: none;
-  }
-
-  .nf-btn--primary::before {
+  .nf-scanline {
     display: none;
   }
 }
