@@ -1,9 +1,11 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AdBanner from "@/components/AdBanner";
+import { useMediaQuery, BREAKPOINT } from "@/hooks/use-media-query";
+import { INK } from "@/theme";
 
 // Home is eager: it is the landing page, and code-splitting it would only add
 // a loading flash to the one route most visitors see first. Commands is lazy —
@@ -24,21 +26,6 @@ const LEFT_AD_SLOT  = "0000000000"; // ← replace with your left slot ID
 const RIGHT_AD_SLOT = "0000000000"; // ← replace with your right slot ID
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Tailwind's default `2xl`. Kept in one place so JS and CSS cannot drift. */
-const WIDE_SCREEN = "(min-width: 96rem)";
-
-function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    const onChange = () => setMatches(mql.matches);
-    onChange();
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, [query]);
-  return matches;
-}
-
 /**
  * Fixed vertical ad strip, only on screens wide enough that it cannot overlap
  * the content.
@@ -51,7 +38,7 @@ function useMediaQuery(query: string): boolean {
  * AdSense throws later, asynchronously, outside it.
  */
 function AdStrip({ side }: { side: "left" | "right" }) {
-  if (!useMediaQuery(WIDE_SCREEN)) return null;
+  if (!useMediaQuery(BREAKPOINT.wide)) return null;
 
   return (
     <div
@@ -80,7 +67,7 @@ function AdStrip({ side }: { side: "left" | "right" }) {
  * when the real page swaps in.
  */
 function PageFallback() {
-  return <div style={{ minHeight: "100vh", background: "hsl(var(--background))" }} />;
+  return <div style={{ minHeight: "100vh", background: INK }} />;
 }
 
 /**

@@ -65,72 +65,96 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* LIGHT MODE */
+/* ── Brand tokens ───────────────────────────────────────────────────────────
+ *
+ * These mirror web/src/theme.ts, which is where the pages read their colours
+ * from. The duplication is deliberate and narrow: the shadcn primitives (card,
+ * toast, tooltip) are styled with Tailwind classes that resolve through the
+ * hsl(var(--…)) chain below, and cannot import a TS module. Keeping the two in
+ * step matters — before this, the primitives were themed *orange*
+ * (--primary: 24 100% 50%) while every page painted itself gold, so a toast
+ * appeared in a colour that exists nowhere in the brand.
+ *
+ * Values are HSL channels, unquoted, because Tailwind wraps them in hsl().
+ * The site is dark-only; the mark is a near-black tile and there is no light
+ * treatment of it, so :root *is* the dark theme rather than a light default
+ * waiting to be overridden. */
 :root {
-  --button-outline: rgba(0,0,0, .10);
-  --badge-outline: rgba(0,0,0, .05);
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
 
-  --opaque-button-border-intensity: -8;
+  --opaque-button-border-intensity: 9;
 
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
+  --elevate-1: rgba(255,255,255, .04);
+  --elevate-2: rgba(255,255,255, .09);
 
-  --background: 0 0% 98%;
-  --foreground: 240 10% 10%;
-  --border: 240 5.9% 90%;
-  
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 10%;
-  --card-border: 240 5.9% 90%;
+  /* #0A0A0C — page ink, matching the logo tile */
+  --background: 240 9% 4%;
+  /* #F5F5F7 */
+  --foreground: 240 9% 96%;
+  /* #26262F */
+  --border: 240 10% 17%;
 
-  --sidebar: 0 0% 100%;
-  --sidebar-foreground: 240 10% 10%;
-  --sidebar-border: 240 5.9% 90%;
-  --sidebar-primary: 24 100% 50%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 10% 10%;
-  --sidebar-ring: 24 100% 50%;
+  /* #131318 */
+  --card: 240 10% 9%;
+  --card-foreground: 240 9% 96%;
+  --card-border: 240 10% 17%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 10%;
-  --popover-border: 240 5.9% 90%;
+  --sidebar: 240 10% 9%;
+  --sidebar-foreground: 240 9% 96%;
+  --sidebar-border: 240 10% 17%;
+  --sidebar-primary: 42 58% 63%;
+  --sidebar-primary-foreground: 240 9% 4%;
+  --sidebar-accent: 240 10% 12%;
+  --sidebar-accent-foreground: 240 9% 96%;
+  --sidebar-ring: 42 58% 63%;
 
-  --primary: 24 100% 50%;
-  --primary-foreground: 0 0% 100%;
+  --popover: 240 10% 9%;
+  --popover-foreground: 240 9% 96%;
+  --popover-border: 240 10% 17%;
 
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 10% 10%;
+  /* #D8B96B — the logo's gold diamond */
+  --primary: 42 58% 63%;
+  --primary-foreground: 240 9% 4%;
 
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
+  /* #C9CDD6 — the logo's platinum diamond */
+  --secondary: 222 15% 82%;
+  --secondary-foreground: 240 9% 4%;
 
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 10% 10%;
+  --muted: 240 10% 12%;
+  /* #A0A0AE */
+  --muted-foreground: 240 8% 65%;
 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 100%;
+  --accent: 240 10% 12%;
+  --accent-foreground: 240 9% 96%;
 
-  --input: 240 5.9% 90%;
-  --ring: 24 100% 50%;
-  --chart-1: 24 100% 50%;
-  --chart-2: 240 10% 10%;
-  --chart-3: 0 0% 100%;
-  --chart-4: 240 5.9% 90%;
-  --chart-5: 240 3.8% 46.1%;
+  /* #F0685C */
+  --destructive: 5 82% 65%;
+  --destructive-foreground: 240 9% 4%;
+
+  --input: 240 10% 17%;
+  --ring: 42 58% 63%;
+  --chart-1: 42 58% 63%;
+  --chart-2: 222 15% 82%;
+  --chart-3: 152 72% 63%;
+  --chart-4: 25 86% 59%;
+  --chart-5: 234 85% 72%;
 
   --app-font-sans: 'Inter', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
-  --radius: .5rem; 
-  --shadow-2xs: 0px 2px 0px 0px rgba(0,0,0, 0.05);
-  --shadow-xs: 0px 2px 0px 0px rgba(0,0,0, 0.05);
-  --shadow-sm: 0px 2px 0px 0px rgba(0,0,0, 0.05), 0px 1px 2px -1px rgba(0,0,0, 0.05);
-  --shadow: 0px 2px 0px 0px rgba(0,0,0, 0.05), 0px 1px 2px -1px rgba(0,0,0, 0.05);
-  --shadow-md: 0px 2px 0px 0px rgba(0,0,0, 0.05), 0px 2px 4px -1px rgba(0,0,0, 0.05);
-  --shadow-lg: 0px 2px 0px 0px rgba(0,0,0, 0.05), 0px 4px 6px -1px rgba(0,0,0, 0.05);
-  --shadow-xl: 0px 2px 0px 0px rgba(0,0,0, 0.05), 0px 8px 10px -1px rgba(0,0,0, 0.05);
-  --shadow-2xl: 0px 2px 0px 0px rgba(0,0,0, 0.05);
+  --radius: .625rem;
+
+  /* Shadows on near-black cannot be cast in black — there is nothing darker to
+     cast onto. Depth here comes from an ambient spread, not a hard drop. */
+  --shadow-2xs: 0px 1px 2px 0px rgba(0,0,0, 0.35);
+  --shadow-xs: 0px 1px 2px 0px rgba(0,0,0, 0.35);
+  --shadow-sm: 0px 1px 3px 0px rgba(0,0,0, 0.4), 0px 1px 2px -1px rgba(0,0,0, 0.4);
+  --shadow: 0px 2px 6px 0px rgba(0,0,0, 0.42), 0px 1px 2px -1px rgba(0,0,0, 0.4);
+  --shadow-md: 0px 4px 12px 0px rgba(0,0,0, 0.45), 0px 2px 4px -1px rgba(0,0,0, 0.4);
+  --shadow-lg: 0px 8px 24px 0px rgba(0,0,0, 0.5), 0px 4px 6px -1px rgba(0,0,0, 0.4);
+  --shadow-xl: 0px 16px 40px 0px rgba(0,0,0, 0.55), 0px 8px 10px -1px rgba(0,0,0, 0.4);
+  --shadow-2xl: 0px 24px 56px 0px rgba(0,0,0, 0.6);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -143,67 +167,15 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+/*
+ * The site is dark-only, so :root above already *is* the theme and there is no
+ * second palette to swap to. This block stays because the shadcn primitives
+ * and @custom-variant dark both key off a .dark ancestor; without it, any
+ * "dark:" utility silently never applies. It inherits rather than redefines,
+ * so there is only one place to change a colour.
+ */
 .dark {
-  --button-outline: rgba(255,255,255, .10);
-  --badge-outline: rgba(255,255,255, .05);
-
-  --opaque-button-border-intensity: 9;
-
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
-
-  --background: 240 10% 4%;
-  --foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  
-  --card: 240 10% 4%;
-  --card-foreground: 0 0% 98%;
-  --card-border: 240 3.7% 15.9%;
-
-  --sidebar: 240 10% 4%;
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-border: 240 3.7% 15.9%;
-  --sidebar-primary: 24 100% 50%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 3.7% 15.9%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-ring: 24 100% 50%;
-
-  --popover: 240 10% 4%;
-  --popover-foreground: 0 0% 98%;
-  --popover-border: 240 3.7% 15.9%;
-
-  --primary: 24 100% 50%;
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-
-  --input: 240 3.7% 15.9%;
-  --ring: 24 100% 50%;
-  --chart-1: 24 100% 50%;
-  --chart-2: 0 0% 98%;
-  --chart-3: 240 10% 4%;
-  --chart-4: 240 3.7% 15.9%;
-  --chart-5: 240 5% 64.9%;
-
-  --shadow-2xs: 0px 2px 0px 0px rgba(0,0,0, 0.2);
-  --shadow-xs: 0px 2px 0px 0px rgba(0,0,0, 0.2);
-  --shadow-sm: 0px 2px 0px 0px rgba(0,0,0, 0.2), 0px 1px 2px -1px rgba(0,0,0, 0.2);
-  --shadow: 0px 2px 0px 0px rgba(0,0,0, 0.2), 0px 1px 2px -1px rgba(0,0,0, 0.2);
-  --shadow-md: 0px 2px 0px 0px rgba(0,0,0, 0.2), 0px 2px 4px -1px rgba(0,0,0, 0.2);
-  --shadow-lg: 0px 2px 0px 0px rgba(0,0,0, 0.2), 0px 4px 6px -1px rgba(0,0,0, 0.2);
-  --shadow-xl: 0px 2px 0px 0px rgba(0,0,0, 0.2), 0px 8px 10px -1px rgba(0,0,0, 0.2);
-  --shadow-2xl: 0px 2px 0px 0px rgba(0,0,0, 0.2);
+  color-scheme: dark;
 }
 
 @layer base {
@@ -211,9 +183,181 @@
     @apply border-border;
   }
 
+  html {
+    /* The nav is sticky and 64px tall, so an in-page anchor (#features) used to
+       scroll its own heading underneath the bar. Every jump target clears it. */
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px;
+  }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    /* Belt and braces: the pages set their own ink background, but a short
+       page that does not fill the viewport would otherwise show white below
+       the fold on overscroll. */
+    background-color: #0A0A0C;
+    text-rendering: optimizeLegibility;
   }
+
+  ::selection {
+    background-color: rgba(216, 185, 107, 0.28);
+    color: #F5F5F7;
+  }
+
+  /*
+   * Focus, made visible.
+   *
+   * Every interactive element on this site is styled inline, and the buttons
+   * set `border: none`, which in most browsers also removes any usable default
+   * focus indicator. The result was a site that could be tabbed through with no
+   * way to see where you were — the category filters in Commands especially,
+   * which are 18 buttons in a row.
+   *
+   * :focus-visible rather than :focus, so a mouse click on a button does not
+   * leave a ring behind it.
+   */
+  :focus-visible {
+    outline: 2px solid #D8B96B;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Inputs keep a persistent ring on plain focus: unlike a button, a focused
+     text field is a state you stay in, and it should look like one. */
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #D8B96B !important;
+    box-shadow: 0 0 0 3px rgba(216, 185, 107, 0.15);
+  }
+
+  /*
+   * Honour a reduced-motion preference.
+   *
+   * The pages animate on load and on scroll via framer-motion, which reads
+   * this preference for its own transitions but cannot know about the CSS
+   * ones. Vestibular disorders make large entrance movement genuinely
+   * unpleasant; this collapses duration everywhere rather than removing the
+   * animation, so nothing that relies on an animation completing breaks.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/*
+ * ── Site interaction layer ─────────────────────────────────────────────────
+ *
+ * The pages are styled with inline `style` objects, which cannot express a
+ * hover, a focus, a media query or a pseudo-element. Rather than rewrite four
+ * working pages into Tailwind wholesale, the states that inline styles cannot
+ * reach live here as a small set of named classes.
+ *
+ * Colours are literals rather than var() lookups because these must match
+ * web/src/theme.ts exactly; both are annotated with the same hex.
+ */
+
+/* Skip link: the first thing in the tab order, invisible until focused.
+   Without it, a keyboard or screen-reader user has to pass every nav item on
+   every page before reaching content — on Commands, that is 18 filter
+   buttons before the first command. */
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -120%);
+  z-index: 100;
+  background-color: #D8B96B;
+  color: #0A0A0C;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 0 0 10px 10px;
+  text-decoration: none;
+  transition: transform 0.18s ease;
+}
+/* :focus as well as :focus-visible. A skip link is unreachable by pointer —
+   it only ever receives focus from the keyboard — so the narrower selector
+   buys nothing and costs support wherever :focus-visible is not honoured for
+   an element that was just made visible. */
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  outline-offset: -2px;
+}
+
+/* Text link that earns an underline on hover instead of living underlined. */
+.link-quiet {
+  transition: color 0.15s ease;
+}
+.link-quiet:hover {
+  color: #F5F5F7;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Primary gold action. The lift is small on purpose: a 1px rise plus a warmer
+   shadow reads as "pressable" without the button appearing to jump. */
+.btn-gold {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.btn-gold:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px rgba(216, 185, 107, 0.28);
+}
+.btn-gold:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+
+/* Secondary / outline action. */
+.btn-ghost {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.btn-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(216, 185, 107, 0.45);
+  color: #F5F5F7;
+}
+
+/* Card hover. Commands' command cards had no hover state at all, so a grid of
+   240 of them gave no feedback that the pointer was over anything. */
+.card-lift {
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  border-color: rgba(216, 185, 107, 0.35);
+  background-color: #1A1A21;
+}
+
+/* Category filter pills. */
+.chip {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.chip:hover {
+  color: #F5F5F7;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* The logo mark. A subtle warm glow on hover ties the nav to the artwork. */
+.brand-mark {
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+a:hover > .brand-mark {
+  filter: drop-shadow(0 0 10px rgba(216, 185, 107, 0.4));
+  transform: scale(1.04);
 }
 
 @layer utilities {
