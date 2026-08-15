@@ -1,22 +1,21 @@
 import React, { useState, useMemo } from "react";
-import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Shield, Wrench, Gamepad2, Sparkles, Terminal,
   Search, ExternalLink, ChevronRight, MousePointerClick,
-  Image, BarChart2, Coins, Globe, SlidersHorizontal, Menu, X,
+  Image, BarChart2, Coins, Globe, SlidersHorizontal, X,
 } from "lucide-react";
-import logoUrl from "/syntaxx-logo.png";
 import { INVITE_URL } from "@/config";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
+import { useIsMobile } from "@/hooks/use-media-query";
+import {
+  PAGE, SURFACE, SURFACE_2, BORDER, BORDER_SUBTLE,
+  TEXT, MUTED, SUBTLE, GOLD, HUE, GREEN, ORANGE, RED,
+  RADIUS, LAYOUT, FONT_MONO, GOLD_GRADIENT, alpha,
+} from "@/theme";
 
-const ACCENT  = "#B8A05B";
-const BG      = "#121212";
-const CARD    = "#1e1e1e";
-const BORDER  = "#2e2e2e";
-const TEXT    = "#eeeeee";
-const MUTED   = "#888888";
-const GREEN   = "#57F287";
-const ORANGE  = "#E67E22";
+const ACCENT = GOLD;
 
 type Tag = "admin" | "pro" | "prefix";
 
@@ -38,7 +37,7 @@ interface Category {
 const categories: Category[] = [
   /* ─────────────────── GENERAL ─────────────────── */
   {
-    id: "general", label: "General", color: "#5865F2",
+    id: "general", label: "General", color: HUE.general,
     icon: <Globe size={15} />,
     commands: [
       { name: "/help",              desc: "Open the interactive help menu — browse all command categories from one place",                    usage: "/help" },
@@ -57,7 +56,7 @@ const categories: Category[] = [
 
   /* ─────────────────── MODERATION ─────────────────── */
   {
-    id: "moderation", label: "Moderation", color: "#e74c3c",
+    id: "moderation", label: "Moderation", color: HUE.moderation,
     icon: <Shield size={15} />,
     commands: [
       { name: "/ban",          desc: "Ban a member from the guild by mention or user ID",                                              usage: "/ban [user] [userid] [reason]",  tags: ["admin"] },
@@ -81,7 +80,7 @@ const categories: Category[] = [
 
   /* ─────────────────── SETUP ─────────────────── */
   {
-    id: "setup", label: "Setup", color: "#3498db",
+    id: "setup", label: "Setup", color: HUE.setup,
     icon: <Wrench size={15} />,
     commands: [
       { name: "/setup-memberlog",              desc: "Configure the channel where member join/leave events are logged, plus auto-roles",          usage: "/setup-memberlog",                        tags: ["admin"] },
@@ -103,7 +102,7 @@ const categories: Category[] = [
 
   /* ─────────────────── TOGGLES ─────────────────── */
   {
-    id: "toggles", label: "Toggles", color: "#8e44ad",
+    id: "toggles", label: "Toggles", color: HUE.toggles,
     icon: <SlidersHorizontal size={15} />,
     commands: [
       { name: "/toggle-levels",               desc: "Enable or disable the XP leveling system for this server",                         usage: "/toggle-levels",               tags: ["admin"] },
@@ -116,7 +115,7 @@ const categories: Category[] = [
 
   /* ─────────────────── LEVELING ─────────────────── */
   {
-    id: "leveling", label: "Leveling", color: "#1abc9c",
+    id: "leveling", label: "Leveling", color: HUE.leveling,
     icon: <BarChart2 size={15} />,
     commands: [
       { name: "/level",            desc: "View your current level, XP, and progress bar as a rendered canvas image — optionally check another user",  usage: "/level [@user]" },
@@ -126,7 +125,7 @@ const categories: Category[] = [
 
   /* ─────────────────── CASINO ─────────────────── */
   {
-    id: "casino", label: "Casino", color: "#f1c40f",
+    id: "casino", label: "Casino", color: HUE.casino,
     icon: <Coins size={15} />,
     commands: [
       { name: "/blackjack",   desc: "Play Blackjack against the dealer — hit or stand to reach 21 without going bust",                       usage: "/blackjack <bet>" },
@@ -151,7 +150,7 @@ const categories: Category[] = [
 
   /* ─────────────────── CONTEXT MENU ─────────────────── */
   {
-    id: "context", label: "Context Menu", color: "#9b59b6",
+    id: "context", label: "Context Menu", color: HUE.context,
     badge: "Right-click",
     icon: <MousePointerClick size={15} />,
     commands: [
@@ -175,7 +174,7 @@ const categories: Category[] = [
 
   /* ─────────────────── MUSIC (PRO) ─────────────────── */
   {
-    id: "music", label: "Music (Pro)", color: "#1DB954",
+    id: "music", label: "Music (Pro)", color: HUE.music,
     badge: "taxx!",
     icon: <Coins size={15} />,
     commands: [
@@ -197,7 +196,7 @@ const categories: Category[] = [
 
   /* ─────────────────── PREFIX: MODERATION ─────────────────── */
   {
-    id: "prefix-mod", label: "Prefix · Moderation", color: "#c0392b",
+    id: "prefix-mod", label: "Prefix · Moderation", color: HUE.moderation,
     badge: "taxx!",
     icon: <Shield size={15} />,
     commands: [
@@ -213,7 +212,7 @@ const categories: Category[] = [
 
   /* ─────────────────── PREFIX: SETUP ─────────────────── */
   {
-    id: "prefix-setup", label: "Prefix · Setup", color: "#2980b9",
+    id: "prefix-setup", label: "Prefix · Setup", color: HUE.setup,
     badge: "taxx!",
     icon: <Wrench size={15} />,
     commands: [
@@ -246,7 +245,7 @@ const categories: Category[] = [
 
   /* ─────────────────── PREFIX: FUN ─────────────────── */
   {
-    id: "prefix-fun", label: "Prefix · Fun", color: "#16a085",
+    id: "prefix-fun", label: "Prefix · Fun", color: HUE.fun,
     badge: "taxx!",
     icon: <Gamepad2 size={15} />,
     commands: [
@@ -260,27 +259,41 @@ const categories: Category[] = [
 
 const ALL_ID = "all";
 
+/**
+ * The badges are colour-coded, but colour is never the only signal — each one
+ * also carries its own word. A red and an orange pill of identical text would
+ * be indistinguishable to a red-green colourblind reader, which is roughly one
+ * man in twelve.
+ */
 function TagBadge({ tag }: { tag: Tag }) {
-  if (tag === "admin")
-    return <span style={{ fontSize: 10, fontWeight: 700, backgroundColor: "rgba(231,76,60,0.12)", color: "#e74c3c", border: "1px solid rgba(231,76,60,0.25)", borderRadius: 4, padding: "2px 6px", letterSpacing: "0.04em" }}>ADMIN</span>;
-  if (tag === "pro")
-    return <span style={{ fontSize: 10, fontWeight: 700, backgroundColor: `${ACCENT}18`, color: ACCENT, border: `1px solid ${ACCENT}40`, borderRadius: 4, padding: "2px 6px", letterSpacing: "0.04em" }}>PRO</span>;
+  const styles: Record<Tag, { label: string; color: string }> = {
+    admin:  { label: "ADMIN",  color: RED },
+    pro:    { label: "PRO",    color: GOLD },
+    prefix: { label: "PREFIX", color: ORANGE },
+  };
+  const { label, color } = styles[tag];
   return (
-    <span style={{ fontSize: 10, fontWeight: 700, backgroundColor: "rgba(230,126,34,0.12)", color: ORANGE, border: "1px solid rgba(230,126,34,0.25)", borderRadius: 4, padding: "2px 6px", letterSpacing: "0.04em" }}>PREFIX</span>
+    <span
+      style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: "0.05em",
+        backgroundColor: alpha(color, 0.12),
+        color,
+        border: `1px solid ${alpha(color, 0.28)}`,
+        borderRadius: RADIUS.sm,
+        padding: "2px 6px",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </span>
   );
 }
 
 export default function Commands() {
   const [activeCat, setActiveCat] = useState(ALL_ID);
   const [query,     setQuery]     = useState("");
-  const [isMobile,  setIsMobile]  = useState(() => window.innerWidth < 640);
-
-  React.useEffect(() => {
-    const h = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener("resize", h);
-    return () => window.removeEventListener("resize", h);
-  }, []);
-  const [showMenu, setShowMenu] = useState(false);
+  const isMobile = useIsMobile();
+  const still = useReducedMotion();
 
   // The catalogue is the whole catalogue now. Owner-added custom commands used
   // to be merged in from /api/commands/custom, which a static build cannot
@@ -304,104 +317,154 @@ export default function Commands() {
       .filter(c => c.commands.length > 0);
   }, [allCategories, activeCat, query]);
 
+  /** How many commands survived the current filter, for the live region. */
+  const resultCount = useMemo(
+    () => filtered.reduce((a, c) => a + c.commands.length, 0),
+    [filtered],
+  );
+
   const isPrefix = (id: string) => id.startsWith("prefix");
 
+  const gutter = isMobile ? LAYOUT.gutterMobile : LAYOUT.gutter;
+
   return (
-    <div style={{ backgroundColor: BG, color: TEXT, minHeight: "100vh", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={PAGE}>
+      <a className="skip-link" href="#main">Skip to content</a>
+      <SiteNav current="commands" />
 
-      {/* ── Navbar ──────────────────────────────────────────────── */}
-      <nav style={{ borderBottom: `1px solid ${BORDER}`, backdropFilter: "blur(12px)", backgroundColor: "rgba(18,18,18,0.9)", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "0 14px" : "0 24px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
-            <img src={logoUrl} alt="Syntaxx" style={{ height: 28, width: "auto" }} />
-            {!isMobile && <span style={{ color: TEXT, fontWeight: 700, fontSize: 15 }}>syntaxx</span>}
-          </Link>
-          <div style={{ display: "flex", gap: isMobile ? 6 : 16, alignItems: "center", flexShrink: 0 }}>
-            {!isMobile && <>
-              <Link href="/"         style={{ color: MUTED, textDecoration: "none", fontSize: 14, fontWeight: 500 }}>Home</Link>
-              <Link href="/commands" style={{ color: TEXT,  textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Commands</Link>
-            </>}
-            {isMobile && (
-              <button onClick={() => setShowMenu(v => !v)}
-                style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "6px 8px", color: TEXT, cursor: "pointer", display: "flex", alignItems: "center" }}>
-                {showMenu ? <X size={16} /> : <Menu size={16} />}
-              </button>
-            )}
-            <a href={INVITE_URL} target="_blank" rel="noreferrer"
-              style={{ backgroundColor: ACCENT, color: "#121212", padding: isMobile ? "7px 12px" : "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
-              Invite {!isMobile && <ExternalLink size={12} />}
-            </a>
-          </div>
-        </div>
-        {isMobile && showMenu && (
-          <div style={{ borderTop: `1px solid ${BORDER}`, backgroundColor: "rgba(18,18,18,0.98)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
-            <Link href="/" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "10px 8px", borderRadius: 8 }}>Home</Link>
-            <Link href="/commands" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 600, padding: "10px 8px", borderRadius: 8 }}>Commands</Link>
-          </div>
-        )}
-      </nav>
-
-      {/* ── Hero ────────────────────────────────────────────────── */}
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "48px 16px 32px" : "72px 24px 48px" }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, backgroundColor: "rgba(184,160,91,0.1)", border: `1px solid rgba(184,160,91,0.3)`, borderRadius: 999, padding: "5px 14px", marginBottom: 20, fontSize: 12, color: ACCENT, fontWeight: 600 }}>
-              <Terminal size={12} /> {totalCommands} commands — {slashCount} slash · {prefixCount} prefix
+      <main id="main" style={{ maxWidth: LAYOUT.maxWidth, margin: "0 auto", padding: `${isMobile ? 48 : 72}px ${gutter}px 0` }}>
+        <motion.div
+          initial={still ? { opacity: 0 } : { opacity: 0, y: 20 }}
+          animate={still ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={{ duration: still ? 0.2 : 0.5 }}
+        >
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 44 }}>
+            <div
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                backgroundColor: alpha(GOLD, 0.09),
+                border: `1px solid ${alpha(GOLD, 0.26)}`,
+                borderRadius: RADIUS.pill, padding: "6px 15px", marginBottom: 20,
+                fontSize: 12.5, color: GOLD, fontWeight: 600,
+              }}
+            >
+              <Terminal size={12} aria-hidden="true" />
+              {totalCommands} commands — {slashCount} slash · {prefixCount} prefix
             </div>
-            <h1 style={{ fontSize: isMobile ? 32 : 52, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-1.5px" }}>
-              All <span style={{ background: `linear-gradient(135deg, ${ACCENT}, #d4b87a)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Commands</span>
+            <h1 style={{ fontSize: isMobile ? 34 : 52, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.035em", color: TEXT }}>
+              All{" "}
+              <span
+                style={{
+                  background: GOLD_GRADIENT,
+                  WebkitBackgroundClip: "text", backgroundClip: "text",
+                  WebkitTextFillColor: "transparent", color: GOLD,
+                }}
+              >
+                Commands
+              </span>
             </h1>
-            <p style={{ color: MUTED, fontSize: 16, margin: "0 auto", maxWidth: 520 }}>
-              Every slash command, context menu action, and <code style={{ backgroundColor: "#1e1e1e", padding: "1px 6px", borderRadius: 4, fontSize: 14, color: ORANGE }}>taxx!</code> prefix command — searchable and organized by category.
+            <p style={{ color: MUTED, fontSize: 16, margin: "0 auto", maxWidth: 540, lineHeight: 1.6 }}>
+              Every slash command, context menu action, and{" "}
+              <code style={{ backgroundColor: SURFACE_2, padding: "2px 6px", borderRadius: RADIUS.sm, fontSize: 14, color: ORANGE, fontFamily: FONT_MONO }}>
+                taxx!
+              </code>{" "}
+              prefix command — searchable and organized by category.
             </p>
           </div>
 
           {/* ── Legend ──────────────────────────────────────────── */}
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: MUTED }}>
-              <span style={{ backgroundColor: "rgba(52,152,219,0.15)", border: "1px solid rgba(52,152,219,0.3)", borderRadius: 4, padding: "2px 8px", color: "#3498db", fontWeight: 600, fontFamily: "monospace" }}>/slash</span>
-              Discord slash commands
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: MUTED }}>
-              <span style={{ backgroundColor: "rgba(230,126,34,0.12)", border: "1px solid rgba(230,126,34,0.25)", borderRadius: 4, padding: "2px 8px", color: ORANGE, fontWeight: 600, fontFamily: "monospace" }}>taxx!</span>
-              Prefix text commands
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: MUTED }}>
-              <span style={{ backgroundColor: "rgba(231,76,60,0.12)", border: "1px solid rgba(231,76,60,0.25)", borderRadius: 4, padding: "2px 6px", color: "#e74c3c", fontWeight: 700, fontSize: 10 }}>ADMIN</span>
-              Requires admin/specific permission
-            </div>
-          </div>
+          <ul style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 24, padding: 0, listStyle: "none" }}>
+            {[
+              { chip: "/slash", color: HUE.setup, mono: true,  text: "Discord slash commands" },
+              { chip: "taxx!",  color: ORANGE,    mono: true,  text: "Prefix text commands" },
+              { chip: "ADMIN",  color: RED,       mono: false, text: "Requires admin permission" },
+            ].map((l) => (
+              <li key={l.chip} style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: MUTED }}>
+                <span
+                  style={{
+                    backgroundColor: alpha(l.color, 0.13),
+                    border: `1px solid ${alpha(l.color, 0.28)}`,
+                    borderRadius: RADIUS.sm, padding: "2px 8px", color: l.color,
+                    fontWeight: l.mono ? 600 : 700, fontSize: l.mono ? 12 : 10,
+                    fontFamily: l.mono ? FONT_MONO : "inherit",
+                  }}
+                >
+                  {l.chip}
+                </span>
+                {l.text}
+              </li>
+            ))}
+          </ul>
 
           {/* ── Search ──────────────────────────────────────────── */}
-          <div style={{ position: "relative", maxWidth: 480, margin: "0 auto 32px" }}>
-            <Search size={16} color={MUTED} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", maxWidth: 480, margin: "0 auto 28px" }}>
+            <Search size={16} color={SUBTLE} aria-hidden="true" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+            <label htmlFor="command-search" className="sr-only">Search commands</label>
             <input
+              id="command-search"
+              type="search"
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="Search commands…"
-              style={{ width: "100%", boxSizing: "border-box", backgroundColor: CARD, border: `1px solid ${BORDER}`, borderRadius: 10, padding: "12px 16px 12px 40px", color: TEXT, fontSize: 14, outline: "none", fontFamily: "inherit" }}
+              style={{
+                width: "100%", boxSizing: "border-box", backgroundColor: SURFACE,
+                border: `1px solid ${BORDER}`, borderRadius: RADIUS.md,
+                padding: "12px 38px 12px 40px", color: TEXT, fontSize: 14,
+                outline: "none", fontFamily: "inherit",
+              }}
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                style={{
+                  position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", color: SUBTLE, cursor: "pointer",
+                  display: "flex", alignItems: "center", padding: 6, borderRadius: RADIUS.sm,
+                }}
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
 
+          {/*
+            Filtering happens with no page reload and no focus change, so a
+            screen-reader user got no indication that anything had happened.
+            This announces the new count politely.
+          */}
+          <p aria-live="polite" className="sr-only">
+            {resultCount} command{resultCount === 1 ? "" : "s"} shown
+          </p>
+
           {/* ── Category tabs ───────────────────────────────────── */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 40 }}>
-            {[{ id: ALL_ID, label: "All", color: TEXT, icon: null, badge: undefined }, ...allCategories].map(cat => {
+          <div
+            role="group"
+            aria-label="Filter commands by category"
+            style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 40 }}
+          >
+            {[{ id: ALL_ID, label: "All", color: TEXT, icon: null, badge: undefined }, ...allCategories].map((cat) => {
               const isActive = activeCat === cat.id;
               const color    = "color" in cat ? (cat as Category).color : TEXT;
-              const prefix   = "id" in cat && isPrefix((cat as Category).id);
               return (
                 <button
                   key={cat.id}
+                  type="button"
+                  className="chip"
                   onClick={() => setActiveCat(cat.id)}
+                  // A pressed toggle, not a link: aria-pressed is what tells a
+                  // screen reader which filter is currently applied.
+                  aria-pressed={isActive}
                   style={{
                     display: "flex", alignItems: "center", gap: 6,
-                    padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-                    cursor: "pointer", fontFamily: "inherit", border: "none", transition: "all 0.15s",
-                    backgroundColor: isActive ? color + "20" : "rgba(255,255,255,0.04)",
+                    padding: "7px 13px", borderRadius: RADIUS.md, fontSize: 12.5, fontWeight: 600,
+                    cursor: "pointer", fontFamily: "inherit",
+                    backgroundColor: isActive ? alpha(color, 0.14) : "rgba(255,255,255,0.04)",
                     color:           isActive ? color : MUTED,
-                    outline:         isActive ? `1px solid ${color}40` : "1px solid transparent",
-                    opacity:         prefix && !isActive ? 0.85 : 1,
-                  }}>
+                    border: `1px solid ${isActive ? alpha(color, 0.4) : "transparent"}`,
+                  }}
+                >
                   {"icon" in cat && cat.icon}
                   {cat.label}
                 </button>
@@ -412,72 +475,153 @@ export default function Commands() {
 
         {/* ── Command list ─────────────────────────────────────────── */}
         {filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 0", color: MUTED }}>
-            <Terminal size={32} color="#444" style={{ marginBottom: 16 }} />
-            <p style={{ fontSize: 15 }}>No commands match "<strong style={{ color: TEXT }}>{query}</strong>"</p>
+          <div style={{ textAlign: "center", padding: "80px 20px", color: MUTED }}>
+            <Terminal size={32} color={SUBTLE} aria-hidden="true" style={{ marginBottom: 16 }} />
+            <p style={{ fontSize: 15, margin: "0 0 20px" }}>
+              No commands match “<strong style={{ color: TEXT }}>{query}</strong>”
+              {activeCat !== ALL_ID && <> in this category</>}.
+            </p>
+            {/* A dead end with no way out is the classic empty-state failure:
+                the filter that hid everything is still applied, and the user
+                has to work out which control to undo. */}
+            <button
+              type="button"
+              className="sx-btn sx-btn--ghost sx-btn--sm"
+              onClick={() => { setQuery(""); setActiveCat(ALL_ID); }}
+            >
+              Clear filters
+            </button>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 34 }}>
             {filtered.map((cat, ci) => {
               const prefixCat = isPrefix(cat.id);
               return (
-                <motion.div key={cat.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: ci * 0.03 }}>
+                <motion.section
+                  key={cat.id}
+                  aria-labelledby={`cat-${cat.id}`}
+                  initial={still ? { opacity: 0 } : { opacity: 0, y: 16 }}
+                  animate={still ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(ci, 6) * 0.03 }}
+                >
                   {/* Category header */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                    <div style={{ backgroundColor: cat.color + "18", borderRadius: 7, padding: "6px 8px", display: "flex", alignItems: "center", color: cat.color }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        backgroundColor: alpha(cat.color, 0.13),
+                        border: `1px solid ${alpha(cat.color, 0.22)}`,
+                        borderRadius: RADIUS.sm, padding: "6px 8px",
+                        display: "flex", alignItems: "center", color: cat.color,
+                      }}
+                    >
                       {cat.icon}
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: cat.color }}>{cat.label}</span>
+                    <h2 id={`cat-${cat.id}`} style={{ fontSize: 14, fontWeight: 700, color: cat.color, margin: 0, letterSpacing: "-0.01em" }}>
+                      {cat.label}
+                    </h2>
                     {cat.badge && (
-                      <span style={{ fontSize: 10, fontWeight: 700, backgroundColor: cat.color + "18", color: cat.color, border: `1px solid ${cat.color}30`, borderRadius: 4, padding: "2px 7px", fontFamily: prefixCat ? "monospace" : "inherit" }}>{cat.badge}</span>
+                      <span
+                        style={{
+                          fontSize: 10, fontWeight: 700,
+                          backgroundColor: alpha(cat.color, 0.13), color: cat.color,
+                          border: `1px solid ${alpha(cat.color, 0.3)}`,
+                          borderRadius: RADIUS.sm, padding: "2px 7px",
+                          fontFamily: prefixCat ? FONT_MONO : "inherit",
+                        }}
+                      >
+                        {cat.badge}
+                      </span>
                     )}
-                    <span style={{ fontSize: 12, color: "#444", fontWeight: 500 }}>{cat.commands.length} command{cat.commands.length !== 1 ? "s" : ""}</span>
-                    <div style={{ flex: 1, height: 1, backgroundColor: BORDER }} />
+                    {/* Was #444 — about 2:1 on the page, i.e. not readable. */}
+                    <span style={{ fontSize: 12.5, color: SUBTLE, fontWeight: 500, whiteSpace: "nowrap" }}>
+                      {cat.commands.length} command{cat.commands.length !== 1 ? "s" : ""}
+                    </span>
+                    <div aria-hidden="true" style={{ flex: 1, height: 1, backgroundColor: BORDER_SUBTLE, minWidth: 12 }} />
                   </div>
 
                   {/* Commands grid */}
-                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(340px, 1fr))", gap: 10 }}>
-                    {cat.commands.map(cmd => (
-                      <div key={cmd.name}
-                        style={{ backgroundColor: CARD, border: `1px solid ${prefixCat ? cat.color + "22" : BORDER}`, borderRadius: 12, padding: "14px 16px" }}>
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-                          <code style={{ fontSize: 12, fontWeight: 700, color: cat.color, backgroundColor: cat.color + "12", padding: "2px 8px", borderRadius: 5, fontFamily: "'Fira Code', 'Fira Mono', monospace" }}>
+                  <ul
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(330px, 1fr))",
+                      gap: 10, margin: 0, padding: 0, listStyle: "none",
+                    }}
+                  >
+                    {cat.commands.map((cmd) => (
+                      <li
+                        key={cmd.name}
+                        className="card-lift"
+                        style={{
+                          backgroundColor: SURFACE,
+                          border: `1px solid ${prefixCat ? alpha(cat.color, 0.18) : BORDER}`,
+                          borderRadius: RADIUS.lg,
+                          padding: "15px 16px",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 7, flexWrap: "wrap" }}>
+                          <code
+                            style={{
+                              fontSize: 12.5, fontWeight: 700, color: cat.color,
+                              backgroundColor: alpha(cat.color, 0.11),
+                              padding: "3px 8px", borderRadius: RADIUS.sm,
+                              fontFamily: FONT_MONO, wordBreak: "break-word",
+                            }}
+                          >
                             {cmd.name}
                           </code>
-                          {cmd.tags?.filter(t => t !== "prefix").map(t => <TagBadge key={t} tag={t} />)}
+                          {cmd.tags?.filter((t) => t !== "prefix").map((t) => <TagBadge key={t} tag={t} />)}
                         </div>
-                        <p style={{ color: MUTED, fontSize: 13, margin: "0", lineHeight: 1.5 }}>{cmd.desc}</p>
+                        <p style={{ color: MUTED, fontSize: 13.5, margin: 0, lineHeight: 1.55 }}>{cmd.desc}</p>
                         {cmd.usage && (
-                          <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
-                            <ChevronRight size={11} color="#444" />
-                            <code style={{ fontSize: 11, color: "#555", fontFamily: "'Fira Code', 'Fira Mono', monospace" }}>{cmd.usage}</code>
+                          <div style={{ marginTop: 9, display: "flex", alignItems: "flex-start", gap: 6 }}>
+                            <ChevronRight size={12} color={SUBTLE} aria-hidden="true" style={{ flexShrink: 0, marginTop: 2 }} />
+                            {/* Was #555 on #1e1e1e — roughly 1.6:1. This is the
+                                one line that tells you how to type the command,
+                                so it was the worst place on the site to hide. */}
+                            <code style={{ fontSize: 11.5, color: SUBTLE, fontFamily: FONT_MONO, lineHeight: 1.5, wordBreak: "break-word" }}>
+                              {cmd.usage}
+                            </code>
                           </div>
                         )}
-                      </div>
+                      </li>
                     ))}
-                  </div>
-                </motion.div>
+                  </ul>
+                </motion.section>
               );
             })}
           </div>
         )}
 
         {/* ── CTA ──────────────────────────────────────────────────── */}
-        <div style={{ marginTop: 72, textAlign: "center", padding: isMobile ? "32px 20px" : "48px 32px", backgroundColor: CARD, border: `1px solid ${BORDER}`, borderRadius: 20 }}>
-          <h2 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, margin: "0 0 10px" }}>Ready to get started?</h2>
-          <p style={{ color: MUTED, fontSize: 15, margin: "0 0 28px" }}>Invite Syntaxx to your server and unlock all commands.</p>
-          <a href={INVITE_URL} target="_blank" rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, backgroundColor: ACCENT, color: "#121212", padding: "13px 30px", borderRadius: 10, fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
-            Invite Syntaxx <ExternalLink size={15} />
+        <section
+          style={{
+            marginTop: 72, marginBottom: 24, textAlign: "center",
+            padding: isMobile ? "36px 22px" : "52px 32px",
+            background: `linear-gradient(135deg, ${alpha(GOLD, 0.1)} 0%, ${alpha(GOLD, 0.03)} 100%)`,
+            border: `1px solid ${alpha(GOLD, 0.22)}`,
+            borderRadius: RADIUS.xl,
+          }}
+        >
+          <h2 style={{ fontSize: isMobile ? 23 : 29, fontWeight: 800, margin: "0 0 10px", color: TEXT, letterSpacing: "-0.03em" }}>
+            Ready to get started?
+          </h2>
+          <p style={{ color: MUTED, fontSize: 15, margin: "0 0 26px" }}>
+            Invite Syntaxx to your server and unlock all {totalCommands} commands.
+          </p>
+          <a
+            href={INVITE_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="sx-btn sx-btn--primary"
+            aria-label="Invite Syntaxx to your Discord server (opens in a new tab)"
+          >
+            Invite Syntaxx <ExternalLink size={15} aria-hidden="true" />
           </a>
-        </div>
+        </section>
+      </main>
 
-        <div style={{ marginTop: 40, textAlign: "center", fontSize: 12, color: "#444", paddingBottom: 40 }}>
-          <Link href="/privacy" style={{ color: "#444", marginRight: 16 }}>Privacy</Link>
-          <Link href="/terms"   style={{ color: "#444" }}>Terms</Link>
-        </div>
-      </div>
-
+      <SiteFooter />
     </div>
   );
 }

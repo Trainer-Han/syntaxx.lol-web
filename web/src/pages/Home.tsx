@@ -1,184 +1,356 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Shield, Coins, TrendingUp, Zap, ScanSearch, Sparkles,
-  ExternalLink, CheckCircle2, Menu, X,
+  ExternalLink, CheckCircle2, Terminal, ArrowRight,
 } from "lucide-react";
 import logoUrl from "/syntaxx-logo.png";
+import { Link } from "wouter";
 import { INVITE_URL } from "@/config";
-import "@/styles/sx-btn.css";
-
-// ── Brand colours ─────────────────────────────────────────────────────────────
-const ACCENT  = "#B8A05B";
-const BG      = "#121212";
-const CARD    = "#2a2a2a";
-const BORDER  = "#383838";
-const TEXT    = "#eeeeee";
-const MUTED   = "#888888";
-const GREEN   = "#57F287";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
+import { useIsMobile } from "@/hooks/use-media-query";
+import {
+  PAGE, SURFACE, BORDER, TEXT, MUTED, SUBTLE,
+  GOLD, PLATINUM, GREEN, HUE,
+  RADIUS, LAYOUT, GOLD_GRADIENT, alpha,
+} from "@/theme";
 
 const features = [
-  { icon: Shield,     title: "Moderation",  color: "#c0392b", desc: "Ban, kick, mute, case tracking, purge, anti-raid and custom commands per server." },
-  { icon: Coins,      title: "Economy",     color: ACCENT,    desc: "Chip system, wallet, casino, blackjack, roulette, slots and mines." },
-  { icon: TrendingUp, title: "Leveling",    color: GREEN,     desc: "XP system, leaderboard, automatic level roles and server ranking." },
-  { icon: Zap,        title: "Auto-Mod",    color: ACCENT,    desc: "Anti-spam, attachment filter, raid protection and configurable automod rules." },
-  { icon: ScanSearch, title: "Alt Scanner", color: "#9b59b6", desc: "Detect alt accounts based on account age and behaviour patterns." },
-  { icon: Sparkles,   title: "Fun & Tools", color: GREEN,     desc: "Color roles, AFK system, GIF editor, QR codes, sticker stealing and more." },
+  { icon: Shield,     title: "Moderation",  color: HUE.moderation, desc: "Ban, kick, mute, case tracking, purge, anti-raid and custom commands per server." },
+  { icon: Coins,      title: "Economy",     color: GOLD,           desc: "Chip system, wallet, casino, blackjack, roulette, slots and mines." },
+  { icon: TrendingUp, title: "Leveling",    color: GREEN,          desc: "XP system, leaderboard, automatic level roles and server ranking." },
+  { icon: Zap,        title: "Auto-Mod",    color: HUE.casino,     desc: "Anti-spam, attachment filter, raid protection and configurable automod rules." },
+  { icon: ScanSearch, title: "Alt Scanner", color: HUE.toggles,    desc: "Detect alt accounts based on account age and behaviour patterns." },
+  { icon: Sparkles,   title: "Fun & Tools", color: PLATINUM,       desc: "Color roles, AFK system, GIF editor, QR codes, sticker stealing and more." },
+];
+
+/**
+ * Claims the hero makes concrete.
+ *
+ * These numbers describe the catalogue in Commands.tsx, but are written out
+ * rather than derived from it: importing that array here would pull the whole
+ * 27 kB command list into the landing page's bundle and undo the code-split
+ * App.tsx sets up deliberately.
+ *
+ * That makes them capable of going stale, so `scripts/verify.js` counts the
+ * real catalogue and fails if either figure stops being true. Change a command
+ * or a category and the check will tell you to change these too.
+ */
+const stats = [
+  { value: "100+", label: "Commands" },
+  { value: "14",   label: "Categories" },
+  { value: "Free", label: "Every feature" },
 ];
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
-  }, []);
-  const [showMenu, setShowMenu] = useState(false);
+  const isMobile = useIsMobile();
+  // framer-motion applies this to its own transitions, but the entrance
+  // offsets below are ours to withdraw: with reduced motion requested, the
+  // content should simply be there rather than travel to its position.
+  const still = useReducedMotion();
+
+  const rise = (delay = 0) =>
+    still
+      ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.2, delay } }
+      : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, delay } };
+
+  const riseInView = (delay = 0) =>
+    still
+      ? { initial: { opacity: 0 }, whileInView: { opacity: 1 }, viewport: { once: true, margin: "-60px" }, transition: { duration: 0.2, delay } }
+      : { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-60px" }, transition: { duration: 0.45, delay } };
+
+  const section: React.CSSProperties = {
+    maxWidth: LAYOUT.maxWidth,
+    margin: "0 auto",
+    padding: `0 ${isMobile ? LAYOUT.gutterMobile : LAYOUT.gutter}px`,
+  };
 
   return (
-    <div style={{ backgroundColor: BG, color: TEXT, minHeight: "100vh", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={PAGE}>
+      <a className="skip-link" href="#main">Skip to content</a>
+      <SiteNav current="home" />
 
-      {/* ── Navbar ─────────────────────────────────────────────────── */}
-      <nav style={{ borderBottom: `1px solid ${BORDER}`, backdropFilter: "blur(12px)", backgroundColor: "rgba(18,18,18,0.9)", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: isMobile ? "0 14px" : "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flexShrink: 0 }}>
-            <img src={logoUrl} alt="Syntaxx" style={{ height: 30, width: "auto", flexShrink: 0 }} />
-          </div>
-          <div style={{ display: "flex", gap: isMobile ? 6 : 16, alignItems: "center", flexShrink: 0 }}>
-            {!isMobile && <>
-              <a href="#features" style={{ color: MUTED, textDecoration: "none", fontSize: 14, fontWeight: 500 }}>Features</a>
-              <Link href="/commands" style={{ color: MUTED, textDecoration: "none", fontSize: 14, fontWeight: 500 }}>Commands</Link>
-            </>}
-            {isMobile && (
-              <button onClick={() => setShowMenu(v => !v)}
-                style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "6px 8px", color: TEXT, cursor: "pointer", display: "flex", alignItems: "center" }}>
-                {showMenu ? <X size={16} /> : <Menu size={16} />}
-              </button>
-            )}
-            <a href={INVITE_URL} target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary sx-btn--sm">
-              {isMobile ? "Invite" : <>Invite <ExternalLink size={13} /></>}
-            </a>
-          </div>
-        </div>
-        {isMobile && showMenu && (
-          <div style={{ borderTop: `1px solid ${BORDER}`, backgroundColor: "rgba(18,18,18,0.98)", padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
-            <a href="#features" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "10px 8px", borderRadius: 8 }}>Features</a>
-            <Link href="/commands" onClick={() => setShowMenu(false)} style={{ color: TEXT, textDecoration: "none", fontSize: 15, fontWeight: 500, padding: "10px 8px", borderRadius: 8 }}>Commands</Link>
-          </div>
-        )}
-      </nav>
+      <main id="main">
+        {/* ── Hero ─────────────────────────────────────────────────────── */}
+        <section style={{ ...section, position: "relative", paddingTop: isMobile ? 64 : 104, paddingBottom: isMobile ? 56 : 88, textAlign: "center" }}>
+          {/* Ambient light behind the headline, in the logo's two colours.
+              Sits behind content and never intercepts a click.
 
-      {/* ── Hero ───────────────────────────────────────────────────── */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "100px 24px 80px", textAlign: "center" }}>
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, backgroundColor: "rgba(184,160,91,0.1)", border: `1px solid rgba(184,160,91,0.3)`, borderRadius: 999, padding: "6px 16px", marginBottom: 28, fontSize: 13, color: ACCENT }}>
-            syntaxx.LOL — Belgian Discord Bot
-          </div>
-          <h1 style={{ fontSize: "clamp(40px,7.5vw,78px)", fontWeight: 800, lineHeight: 1.08, margin: "0 0 20px", letterSpacing: "-2px", color: TEXT }}>
-            The most powerful<br />
-            <span style={{ background: `linear-gradient(135deg, ${ACCENT}, #d4b87a)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Discord Bot</span>{" "}
-            for your server
-          </h1>
-          <p style={{ fontSize: 18, color: MUTED, maxWidth: 520, margin: "0 auto 44px", lineHeight: 1.7 }}>
-            Moderation, economy, leveling, auto-mod and more. Everything your server needs in one bot.
-          </p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href={INVITE_URL} target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary">
-              Invite Bot <ExternalLink size={16} />
-            </a>
-            <a href="#features" className="sx-btn sx-btn--ghost">
-              Learn more
-            </a>
-          </div>
-        </motion.div>
-      </section>
+              The ellipse radii are given explicitly, as percentages of the box,
+              rather than left to the default `farthest-corner`. With the
+              default, the gradient reaches full transparency at the distance to
+              the furthest corner — which is further than the nearest edge, so
+              it was still tinted where the box ended and drew a visible
+              rectangle with hard vertical sides across the hero. Sized this
+              way, each glow finishes inside its own bounds on every axis. */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute", top: -60, left: "50%", transform: "translateX(-50%)",
+              width: "min(760px, 100%)", height: 420, pointerEvents: "none", zIndex: 0,
+              background: `radial-gradient(ellipse 40% 42% at 44% 45%, ${alpha(GOLD, 0.17)} 0%, ${alpha(GOLD, 0)} 100%),
+                           radial-gradient(ellipse 34% 38% at 60% 48%, ${alpha(PLATINUM, 0.09)} 0%, ${alpha(PLATINUM, 0)} 100%)`,
+            }}
+          />
 
-      {/* ── Features ───────────────────────────────────────────────── */}
-      <section id="features" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-1px", color: TEXT }}>Everything you need</h2>
-          <p style={{ color: MUTED, fontSize: 16, margin: 0 }}>Powerful features, easy to use</p>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 16 }}>
-          {features.map((f, i) => (
-            <motion.div key={f.title}
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-              style={{ backgroundColor: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 28 }}
-              whileHover={{ borderColor: ACCENT + "55", translateY: -2 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: f.color + "20", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                <f.icon size={22} color={f.color} />
-              </div>
-              <h3 style={{ fontSize: 17, fontWeight: 700, margin: "0 0 8px", color: TEXT }}>{f.title}</h3>
-              <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.65, margin: 0 }}>{f.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+          <motion.div {...rise()} style={{ position: "relative", zIndex: 1 }}>
+            <img
+              src={logoUrl}
+              alt="The Syntaxx logo: a gold and a platinum diamond overlapping"
+              width={isMobile ? 76 : 92}
+              height={isMobile ? 76 : 92}
+              style={{
+                width: isMobile ? 76 : 92, height: isMobile ? 76 : 92,
+                // Tailwind's preflight sets `img { display: block }`, so the
+                // section's text-align:center does not reach it — an auto
+                // margin is what actually centres a block-level image.
+                margin: "0 auto 26px",
+                filter: `drop-shadow(0 8px 32px ${alpha(GOLD, 0.3)})`,
+              }}
+            />
 
-      {/* ── CTA ────────────────────────────────────────────────────── */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
-        <div style={{ background: `linear-gradient(135deg, rgba(184,160,91,0.12) 0%, rgba(184,160,91,0.04) 100%)`, border: `1px solid rgba(184,160,91,0.25)`, borderRadius: 20, padding: "60px 40px", textAlign: "center" }}>
-          <h2 style={{ fontSize: 34, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-1px", color: TEXT }}>Ready to get started?</h2>
-          <p style={{ color: MUTED, fontSize: 16, margin: "0 0 32px" }}>Add Syntaxx to your server and experience the difference.</p>
-          <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginBottom: 36 }}>
-            {["Free to use", "Instant setup", "Regular updates", "Support available"].map(item => (
-              <span key={item} style={{ display: "flex", alignItems: "center", gap: 6, color: ACCENT, fontSize: 14, fontWeight: 500 }}>
-                <CheckCircle2 size={14} color={GREEN} />{item}
-              </span>
-            ))}
-          </div>
-          <a href={INVITE_URL} target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary">
-            Invite Syntaxx <ExternalLink size={16} />
-          </a>
-        </div>
-      </section>
-
-      {/* ── Support / Donate ───────────────────────────────────────── */}
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 80px" }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          style={{ position: "relative", overflow: "hidden", borderRadius: 24, border: "1px solid rgba(184,160,91,0.22)", background: "rgba(255,255,255,0.025)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", padding: isMobile ? "44px 24px" : "60px 60px", textAlign: "center" }}>
-
-          <div style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 480, height: 240, background: "radial-gradient(ellipse, rgba(184,160,91,0.13) 0%, transparent 70%)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -60, right: -60, width: 260, height: 260, background: "radial-gradient(ellipse, rgba(184,160,91,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{ fontSize: isMobile ? 44 : 52, marginBottom: 18, lineHeight: 1 }}>☕</div>
-            <h2 style={{ fontSize: isMobile ? 24 : 30, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.5px", color: TEXT }}>
-              Enjoying Syntaxx?
-            </h2>
-            <p style={{ color: MUTED, fontSize: 15, margin: "0 auto 36px", maxWidth: 440, lineHeight: 1.75 }}>
-              Syntaxx is completely free. If it's saved you time or made your server better, a coffee keeps the lights on!
-            </p>
-
-            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 36 }}>
-              {["Credit card", "Apple Pay", "Google Pay", "PayPal"].map(m => (
-                <span key={m} style={{ fontSize: 12, fontWeight: 600, color: ACCENT, backgroundColor: "rgba(184,160,91,0.1)", border: "1px solid rgba(184,160,91,0.22)", borderRadius: 999, padding: "4px 12px" }}>{m}</span>
-              ))}
+            <div
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                backgroundColor: alpha(GOLD, 0.09),
+                border: `1px solid ${alpha(GOLD, 0.26)}`,
+                borderRadius: RADIUS.pill, padding: "6px 15px", marginBottom: 26,
+                fontSize: 13, color: GOLD, fontWeight: 500,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: GREEN, boxShadow: `0 0 8px ${GREEN}` }}
+              />
+              Belgian Discord Bot
             </div>
 
-            <a href="https://www.buymeacoffee.com/syntaxx.lol" target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary">
-              ☕ Buy me a coffee
-            </a>
+            <h1
+              style={{
+                fontSize: "clamp(38px, 7vw, 74px)", fontWeight: 800, lineHeight: 1.06,
+                margin: "0 0 22px", letterSpacing: "-0.035em", color: TEXT,
+              }}
+            >
+              The most powerful
+              <br />
+              <span
+                style={{
+                  background: GOLD_GRADIENT,
+                  WebkitBackgroundClip: "text", backgroundClip: "text",
+                  WebkitTextFillColor: "transparent", color: GOLD,
+                }}
+              >
+                Discord bot
+              </span>{" "}
+              for your server
+            </h1>
 
-            <p style={{ color: "#3a3a3a", fontSize: 12, marginTop: 20, marginBottom: 0 }}>
-              Secure payments via Buy Me a Coffee · Powered by Stripe
+            <p style={{ fontSize: isMobile ? 16 : 18, color: MUTED, maxWidth: 540, margin: "0 auto 38px", lineHeight: 1.65 }}>
+              Moderation, economy, leveling, auto-mod and more. Everything your
+              server needs, in one bot.
             </p>
-          </div>
-        </motion.div>
-      </section>
 
-      {/* ── Footer ─────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: `1px solid ${BORDER}`, padding: "32px 24px", textAlign: "center" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <img src={logoUrl} alt="Syntaxx" style={{ height: 28, width: "auto", marginBottom: 10, opacity: 0.8 }} />
-          <p style={{ color: MUTED, fontSize: 13, margin: 0 }}>
-            <Link href="/terms" style={{ color: MUTED, textDecoration: "none" }}>Terms of Service</Link>
-            {" · "}
-            <Link href="/privacy" style={{ color: MUTED, textDecoration: "none" }}>Privacy Policy</Link>
-          </p>
-        </div>
-      </footer>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+              <a
+                href={INVITE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="sx-btn sx-btn--primary sx-btn--lg"
+                aria-label="Invite Syntaxx to your Discord server (opens in a new tab)"
+              >
+                Invite Bot <ExternalLink size={16} aria-hidden="true" />
+              </a>
+              <Link href="/commands" className="sx-btn sx-btn--ghost sx-btn--lg">
+                <Terminal size={16} aria-hidden="true" /> Browse commands
+              </Link>
+            </div>
+
+            {/* Proof, immediately under the ask. */}
+            <ul
+              style={{
+                display: "flex", gap: isMobile ? 28 : 52, justifyContent: "center",
+                flexWrap: "wrap", margin: "48px 0 0", padding: 0, listStyle: "none",
+              }}
+            >
+              {stats.map((s) => (
+                <li key={s.label} style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: isMobile ? 24 : 30, fontWeight: 800, color: TEXT, letterSpacing: "-0.03em" }}>
+                    {s.value}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: SUBTLE, marginTop: 3, letterSpacing: "0.03em" }}>
+                    {s.label}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </section>
+
+        {/* ── Features ─────────────────────────────────────────────────── */}
+        <section id="features" style={{ ...section, paddingBottom: isMobile ? 64 : 92 }}>
+          <div style={{ textAlign: "center", marginBottom: 44 }}>
+            <h2 style={{ fontSize: isMobile ? 28 : 38, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.03em", color: TEXT }}>
+              Everything you need
+            </h2>
+            <p style={{ color: MUTED, fontSize: 16, margin: 0 }}>Powerful features, easy to use.</p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(288px, 1fr))", gap: 16 }}>
+            {features.map((f, i) => (
+              <motion.article
+                key={f.title}
+                {...riseInView(Math.min(i, 3) * 0.06)}
+                className="card-lift"
+                style={{
+                  backgroundColor: SURFACE,
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: RADIUS.lg,
+                  padding: 26,
+                }}
+              >
+                <div
+                  aria-hidden="true"
+                  style={{
+                    width: 44, height: 44, borderRadius: RADIUS.md,
+                    backgroundColor: alpha(f.color, 0.13),
+                    border: `1px solid ${alpha(f.color, 0.22)}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    marginBottom: 16,
+                  }}
+                >
+                  <f.icon size={21} color={f.color} />
+                </div>
+                <h3 style={{ fontSize: 17, fontWeight: 700, margin: "0 0 8px", color: TEXT, letterSpacing: "-0.01em" }}>
+                  {f.title}
+                </h3>
+                <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.65, margin: 0 }}>{f.desc}</p>
+              </motion.article>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 32 }}>
+            <Link
+              href="/commands"
+              className="link-quiet"
+              style={{ color: GOLD, fontSize: 15, fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7 }}
+            >
+              See all 100+ commands <ArrowRight size={15} aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+
+        {/* ── CTA ──────────────────────────────────────────────────────── */}
+        <section style={{ ...section, paddingBottom: isMobile ? 64 : 92 }}>
+          <motion.div
+            {...riseInView()}
+            style={{
+              position: "relative", overflow: "hidden",
+              background: `linear-gradient(135deg, ${alpha(GOLD, 0.11)} 0%, ${alpha(PLATINUM, 0.04)} 100%)`,
+              border: `1px solid ${alpha(GOLD, 0.24)}`,
+              borderRadius: RADIUS.xl,
+              padding: isMobile ? "44px 24px" : "62px 40px",
+              textAlign: "center",
+            }}
+          >
+            <h2 style={{ fontSize: isMobile ? 26 : 34, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.03em", color: TEXT }}>
+              Ready to get started?
+            </h2>
+            <p style={{ color: MUTED, fontSize: 16, margin: "0 0 30px" }}>
+              Add Syntaxx to your server and experience the difference.
+            </p>
+
+            <ul
+              style={{
+                display: "flex", gap: isMobile ? 14 : 26, justifyContent: "center",
+                flexWrap: "wrap", margin: "0 0 34px", padding: 0, listStyle: "none",
+              }}
+            >
+              {["Free to use", "Instant setup", "Regular updates", "Support available"].map((item) => (
+                <li key={item} style={{ display: "flex", alignItems: "center", gap: 7, color: TEXT, fontSize: 14, fontWeight: 500 }}>
+                  <CheckCircle2 size={15} color={GREEN} aria-hidden="true" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href={INVITE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="sx-btn sx-btn--primary sx-btn--lg"
+              aria-label="Invite Syntaxx to your Discord server (opens in a new tab)"
+            >
+              Invite Syntaxx <ExternalLink size={16} aria-hidden="true" />
+            </a>
+          </motion.div>
+        </section>
+
+        {/* ── Support / Donate ─────────────────────────────────────────── */}
+        <section style={{ ...section, paddingBottom: isMobile ? 64 : 92 }}>
+          <motion.div
+            {...riseInView()}
+            style={{
+              position: "relative", overflow: "hidden", borderRadius: RADIUS.xl,
+              border: `1px solid ${BORDER}`, backgroundColor: SURFACE,
+              padding: isMobile ? "44px 24px" : "58px 60px", textAlign: "center",
+            }}
+          >
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute", top: -90, left: "50%", transform: "translateX(-50%)",
+                width: 480, height: 240, pointerEvents: "none",
+                // Explicit radii, for the reason given at the hero glow above.
+                background: `radial-gradient(ellipse 46% 46% at 50% 50%, ${alpha(GOLD, 0.13)} 0%, ${alpha(GOLD, 0)} 100%)`,
+              }}
+            />
+
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <div aria-hidden="true" style={{ fontSize: isMobile ? 40 : 48, marginBottom: 16, lineHeight: 1 }}>☕</div>
+              <h2 style={{ fontSize: isMobile ? 24 : 30, fontWeight: 800, margin: "0 0 12px", letterSpacing: "-0.025em", color: TEXT }}>
+                Enjoying Syntaxx?
+              </h2>
+              <p style={{ color: MUTED, fontSize: 15, margin: "0 auto 30px", maxWidth: 450, lineHeight: 1.7 }}>
+                Syntaxx is completely free. If it's saved you time or made your
+                server better, a coffee keeps the lights on.
+              </p>
+
+              <ul style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", margin: "0 0 30px", padding: 0, listStyle: "none" }}>
+                {["Credit card", "Apple Pay", "Google Pay", "PayPal"].map((m) => (
+                  <li
+                    key={m}
+                    style={{
+                      fontSize: 12, fontWeight: 600, color: GOLD,
+                      backgroundColor: alpha(GOLD, 0.09),
+                      border: `1px solid ${alpha(GOLD, 0.22)}`,
+                      borderRadius: RADIUS.pill, padding: "5px 13px",
+                    }}
+                  >
+                    {m}
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="https://www.buymeacoffee.com/syntaxx.lol"
+                target="_blank"
+                rel="noreferrer"
+                className="sx-btn sx-btn--primary"
+                aria-label="Buy me a coffee on Buy Me a Coffee (opens in a new tab)"
+              >
+                ☕ Buy me a coffee
+              </a>
+
+              {/* Was #3a3a3a on #121212 — about 1.6:1, and unreadable. */}
+              <p style={{ color: SUBTLE, fontSize: 12.5, margin: "18px 0 0" }}>
+                Secure payments via Buy Me a Coffee · Powered by Stripe
+              </p>
+            </div>
+          </motion.div>
+        </section>
+      </main>
+
+      <SiteFooter />
     </div>
   );
 }
