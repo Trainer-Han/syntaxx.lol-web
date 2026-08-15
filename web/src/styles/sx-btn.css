@@ -1,0 +1,129 @@
+/* Shared Syntaxx CTA buttons — used on Home, 404, etc. */
+
+.sx-btn {
+  --sx-accent: #b8a05b;
+  --sx-text: #eeeeee;
+  --sx-border: #383838;
+  --sx-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition:
+    transform 0.15s var(--sx-ease-out),
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.sx-btn:focus-visible {
+  outline: 2px solid var(--sx-accent);
+  outline-offset: 3px;
+}
+
+.sx-btn--primary {
+  overflow: hidden;
+  background: var(--sx-accent);
+  color: #121212;
+  box-shadow:
+    0 10px 28px rgba(184, 160, 91, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.sx-btn--primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.35) 48%,
+    transparent 62%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.55s var(--sx-ease-out);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sx-btn--primary:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 14px 32px rgba(184, 160, 91, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  .sx-btn--primary:hover::before {
+    transform: translateX(120%);
+  }
+
+  .sx-btn--primary:hover .sx-btn__arrow {
+    transform: translateX(3px);
+  }
+}
+
+.sx-btn--primary:active {
+  transform: scale(0.98);
+}
+
+.sx-btn__arrow {
+  display: inline-block;
+  transition: transform 0.2s var(--sx-ease-out);
+}
+
+.sx-btn--ghost {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--sx-text);
+  border: 1px solid var(--sx-border);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sx-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(184, 160, 91, 0.35);
+  }
+}
+
+.sx-btn--ghost:active {
+  transform: scale(0.98);
+}
+
+/* Compact nav / toolbar size */
+.sx-btn--sm {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: 8px;
+  gap: 6px;
+}
+
+.sx-btn--sm.sx-btn--primary {
+  box-shadow:
+    0 6px 18px rgba(184, 160, 91, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-btn--primary::before {
+    display: none;
+  }
+
+  .sx-btn,
+  .sx-btn__arrow {
+    transition: none;
+  }
+}

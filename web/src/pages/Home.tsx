@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import logoUrl from "/syntaxx-logo.png";
 import { INVITE_URL } from "@/config";
+import "@/styles/sx-btn.css";
 
 // ── Brand colours ─────────────────────────────────────────────────────────────
 const ACCENT  = "#B8A05B";
@@ -55,9 +56,8 @@ export default function Home() {
                 {showMenu ? <X size={16} /> : <Menu size={16} />}
               </button>
             )}
-            <a href={INVITE_URL} target="_blank" rel="noreferrer"
-              style={{ backgroundColor: ACCENT, color: "#121212", padding: isMobile ? "7px 12px" : "8px 20px", borderRadius: 8, fontSize: isMobile ? 13 : 14, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
-              {isMobile ? "Invite" : <><span>Invite</span><ExternalLink size={13} /></>}
+            <a href={INVITE_URL} target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary sx-btn--sm">
+              {isMobile ? "Invite" : <>Invite <ExternalLink size={13} /></>}
             </a>
           </div>
         </div>
@@ -84,12 +84,10 @@ export default function Home() {
             Moderation, economy, leveling, auto-mod and more. Everything your server needs in one bot.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href={INVITE_URL} target="_blank" rel="noreferrer"
-              style={{ backgroundColor: ACCENT, color: "#121212", padding: "14px 34px", borderRadius: 10, fontSize: 16, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+            <a href={INVITE_URL} target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary">
               Invite Bot <ExternalLink size={16} />
             </a>
-            <a href="#features"
-              style={{ backgroundColor: "rgba(255,255,255,0.05)", color: TEXT, padding: "14px 34px", borderRadius: 10, fontSize: 16, fontWeight: 600, textDecoration: "none", border: `1px solid ${BORDER}` }}>
+            <a href="#features" className="sx-btn sx-btn--ghost">
               Learn more
             </a>
           </div>
@@ -130,8 +128,7 @@ export default function Home() {
               </span>
             ))}
           </div>
-          <a href={INVITE_URL} target="_blank" rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, backgroundColor: ACCENT, color: "#121212", padding: "14px 38px", borderRadius: 10, fontSize: 16, fontWeight: 700, textDecoration: "none" }}>
+          <a href={INVITE_URL} target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary">
             Invite Syntaxx <ExternalLink size={16} />
           </a>
         </div>
@@ -142,7 +139,6 @@ export default function Home() {
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           style={{ position: "relative", overflow: "hidden", borderRadius: 24, border: "1px solid rgba(184,160,91,0.22)", background: "rgba(255,255,255,0.025)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", padding: isMobile ? "44px 24px" : "60px 60px", textAlign: "center" }}>
 
-          {/* ambient glow */}
           <div style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 480, height: 240, background: "radial-gradient(ellipse, rgba(184,160,91,0.13) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", bottom: -60, right: -60, width: 260, height: 260, background: "radial-gradient(ellipse, rgba(184,160,91,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
 
@@ -155,15 +151,13 @@ export default function Home() {
               Syntaxx is completely free. If it's saved you time or made your server better, a coffee keeps the lights on!
             </p>
 
-            {/* pill badges */}
             <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 36 }}>
               {["Credit card", "Apple Pay", "Google Pay", "PayPal"].map(m => (
                 <span key={m} style={{ fontSize: 12, fontWeight: 600, color: ACCENT, backgroundColor: "rgba(184,160,91,0.1)", border: "1px solid rgba(184,160,91,0.22)", borderRadius: 999, padding: "4px 12px" }}>{m}</span>
               ))}
             </div>
 
-            <a href="https://www.buymeacoffee.com/syntaxx.lol" target="_blank" rel="noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 10, background: `linear-gradient(135deg, ${ACCENT} 0%, #d4b87a 100%)`, color: "#121212", padding: isMobile ? "13px 28px" : "15px 38px", borderRadius: 12, fontSize: 16, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 28px rgba(184,160,91,0.3)", letterSpacing: "-0.2px" }}>
+            <a href="https://www.buymeacoffee.com/syntaxx.lol" target="_blank" rel="noreferrer" className="sx-btn sx-btn--primary">
               ☕ Buy me a coffee
             </a>
 
