@@ -14,6 +14,7 @@ import { INK } from "@/theme";
 import Home from "@/pages/Home";
 
 const Commands = lazy(() => import("@/pages/Commands"));
+const Features = lazy(() => import("@/pages/Features"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Privacy = lazy(() => import("@/pages/Privacy"));
 const Terms = lazy(() => import("@/pages/Terms"));
@@ -80,6 +81,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/features" component={Features} />
       <Route path="/commands" component={Commands} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />

@@ -26,10 +26,9 @@ import {
 
 /**
  * Which page the nav is sitting on. "none" is for pages that are not part of
- * the main set — the 404 — where no nav item should read as current and the
- * in-page "Features" anchor would point at a section that is not on the page.
+ * the main set — the 404 — where no nav item should read as current.
  */
-export type NavPage = "home" | "commands" | "legal" | "none";
+export type NavPage = "home" | "features" | "commands" | "legal" | "none";
 
 interface NavLinkSpec {
   label: string;
@@ -67,12 +66,13 @@ export default function SiteNav({ current }: { current: NavPage }) {
 
   const links: NavLinkSpec[] = [
     { label: "Home", href: "/" },
-    ...(current === "home" ? [{ label: "Features", href: "#features", anchor: true }] : []),
+    { label: "Features", href: "/features" },
     { label: "Commands", href: "/commands" },
   ];
 
   const isActive = (l: NavLinkSpec) =>
     (l.href === "/" && current === "home") ||
+    (l.href === "/features" && current === "features") ||
     (l.href === "/commands" && current === "commands");
 
   const linkStyle = (active: boolean): React.CSSProperties => ({

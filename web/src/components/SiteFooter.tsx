@@ -71,6 +71,7 @@ export default function SiteFooter() {
             <h2 style={{ color: TEXT, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", margin: 0 }}>
               Product
             </h2>
+            <Link href="/features" className="link-quiet" style={linkStyle}>Features</Link>
             <Link href="/commands" className="link-quiet" style={linkStyle}>Commands</Link>
             <a
               href={INVITE_URL}
