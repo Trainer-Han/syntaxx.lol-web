@@ -12,7 +12,7 @@ const outDir = path.resolve(here, "dist", "client");
  * Client-side routes that must exist as real files. Keep in sync with the
  * <Route> list in web/src/App.tsx.
  */
-const ROUTES = ["commands", "terms", "privacy"];
+const ROUTES = ["features", "commands", "terms", "privacy"];
 
 /**
  * GitHub Pages has no SPA fallback: it serves the file at the requested path,

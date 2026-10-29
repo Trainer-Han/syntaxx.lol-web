@@ -1,0 +1,2422 @@
+{
+  "updated": "29 Oct 2026",
+  "statuses": {
+    "stable": "Live and settled",
+    "beta": "Live, still being tried",
+    "planned": "An approved demo, not built yet. Plans can change"
+  },
+  "features": [
+    {
+      "id": "moderation",
+      "name": "Moderation & cases",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Warn, mute, timeout, kick and ban, each kept as a case with the member's history.",
+      "lead": "The everyday moderation commands. Every action is saved as a case, so a member's history is one command away, and repeated warnings can lead to a timeout.",
+      "points": [
+        "Warn, mute, timeout, kick and ban, from slash commands or right-click.",
+        "Every action is a case with the moderator and reason.",
+        "/infractions shows one member's whole history.",
+        "After a set number of warnings, a timeout is offered."
+      ],
+      "use": [
+        "Act on a member: `/warn`, `/mute`, `/timeout`, `/kick` or `/ban`, or right-click them › Apps.",
+        "See their history: `/infractions`.",
+        "Warnings before a timeout is offered: `/warn-settings threshold`; its length: `/warn-settings duration`.",
+        "Log actions: `/setup mod-logs`; deleted messages: `/setup cleared-log`."
+      ],
+      "why": [
+        {
+          "title": "Cases, not just actions",
+          "text": "A ban on its own says nothing next month. Keeping each action as a case with its reason is what makes /infractions and appeals possible."
+        }
+      ],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "softban",
+        "trust-card",
+        "command-perms"
+      ],
+      "commands": [
+        {
+          "name": "/warn",
+          "kind": "slash",
+          "description": "Warn a member.",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "target",
+              "type": "user",
+              "description": "The member you want to warn.",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for the warn.",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/warn target:"
+        },
+        {
+          "name": "/unwarn",
+          "kind": "slash",
+          "description": "Remove a member's most recent warn(s).",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "target",
+              "type": "user",
+              "description": "The member whose warn you want to remove.",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "amount",
+              "type": "integer",
+              "description": "How many of their newest warns to remove (default 1).",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "all",
+              "type": "boolean",
+              "description": "Clear their entire warn record instead.",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Why the warn is being removed.",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/unwarn target:"
+        },
+        {
+          "name": "/mute",
+          "kind": "slash",
+          "description": "Mute a member permanently",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "Select the member to mute",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "userid",
+              "type": "string",
+              "description": "Provide the user ID to mute",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for the mute",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/mute"
+        },
+        {
+          "name": "/unmute",
+          "kind": "slash",
+          "description": "Unmute a member",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "Select member to unmute",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "userid",
+              "type": "string",
+              "description": "Provide user ID to unmute",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/unmute"
+        },
+        {
+          "name": "/timeout",
+          "kind": "slash",
+          "description": "<:hourglassIcon:1395101523264016454> Timeout a member with a reason.",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "Select the member",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "duration",
+              "type": "string",
+              "description": "Timeout duration (e.g. 10s, 5m, 2h, 1d, 1.5h)",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for timeout",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/timeout user: duration:"
+        },
+        {
+          "name": "/kick",
+          "kind": "slash",
+          "description": "Kick a member from the server.",
+          "permissions": [
+            "Kick Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "target",
+              "type": "user",
+              "description": "The member you want to kick.",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for the kick.",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/kick target:"
+        },
+        {
+          "name": "/ban",
+          "kind": "slash",
+          "description": "Ban a member from the guild by mention or user ID (works even if not in server)",
+          "permissions": [
+            "Ban Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "target",
+              "type": "user",
+              "description": "The member to ban",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "userid",
+              "type": "string",
+              "description": "User ID to ban (use this to ban someone not in the server)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for banning",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/ban"
+        },
+        {
+          "name": "/unban",
+          "kind": "slash",
+          "description": "Unban a user from the server",
+          "permissions": [
+            "Ban Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "The user to unban",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for the unban",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "dm",
+              "type": "boolean",
+              "description": "DM the user that they were unbanned (default: false)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/unban user:"
+        },
+        {
+          "name": "/infractions",
+          "kind": "slash",
+          "description": "View a member's infraction history",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "The member whose infractions to view",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/infractions user:"
+        },
+        {
+          "name": "/view-all-cases",
+          "kind": "slash",
+          "description": "View all cases in this server",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/view-all-cases"
+        },
+        {
+          "name": "/delete-case",
+          "kind": "slash",
+          "description": "Delete a case by number",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "number",
+              "type": "integer",
+              "description": "Case number",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/delete-case number:"
+        },
+        {
+          "name": "/clear",
+          "kind": "slash",
+          "description": "Bulk delete messages",
+          "permissions": [
+            "Manage Messages"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "amount",
+              "type": "number",
+              "description": "Amount of messages to delete",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for clearing the messages",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "target",
+              "type": "user",
+              "description": "Only delete messages from this user",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/clear amount: reason:"
+        },
+        {
+          "name": "/purge",
+          "kind": "slash",
+          "description": "Delete messages from a user in the last 24 hours across public server channels.",
+          "permissions": [
+            "Manage Messages"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "target",
+              "type": "user",
+              "description": "The user to purge messages from",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "identifier",
+              "type": "string",
+              "description": "User ID, username, or tag if you didn't use the selector",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for purging messages",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/purge"
+        },
+        {
+          "name": "/dm-member",
+          "kind": "slash",
+          "description": "<:mailIcon:1395101538371764366> Send a structured DM to a member (requires Manage Messages).",
+          "permissions": [
+            "Manage Messages"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "The user you want to DM.",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "description": "Title of the DM embed.",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "description": "The main message text.",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "link",
+              "type": "string",
+              "description": "Optional link to include.",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "description": "Send as embed or plain text?",
+              "required": false,
+              "choices": [
+                "Embed",
+                "Plain Text"
+              ]
+            }
+          ],
+          "copy": "/dm-member user: title: text:"
+        },
+        {
+          "name": "/warn-settings view",
+          "kind": "slash",
+          "description": "Show the current warn settings",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/warn-settings view"
+        },
+        {
+          "name": "/warn-settings threshold",
+          "kind": "slash",
+          "description": "Warns before a timeout is offered",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "value",
+              "type": "integer",
+              "description": "Whole number from 1 to 50",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/warn-settings threshold value:"
+        },
+        {
+          "name": "/warn-settings duration",
+          "kind": "slash",
+          "description": "Timeout length to offer",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "value",
+              "type": "string",
+              "description": "Length like 30m, 2h, 1d or 7d (max 28d)",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/warn-settings duration value:"
+        },
+        {
+          "name": "/warn-settings dm",
+          "kind": "slash",
+          "description": "DM the warned member",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "enabled",
+              "type": "boolean",
+              "description": "Whether to DM the warned member",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/warn-settings dm enabled:"
+        },
+        {
+          "name": "ctx:Ban",
+          "kind": "user-context",
+          "description": "",
+          "permissions": [
+            "Ban Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "Right-click › Apps › Ban"
+        },
+        {
+          "name": "ctx:Kick",
+          "kind": "user-context",
+          "description": "",
+          "permissions": [
+            "Kick Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "Right-click › Apps › Kick"
+        },
+        {
+          "name": "ctx:Purge Messages",
+          "kind": "user-context",
+          "description": "",
+          "permissions": [
+            "Manage Messages"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "Right-click › Apps › Purge Messages"
+        },
+        {
+          "name": "/setup mute-role",
+          "kind": "slash",
+          "description": "Set the muted role",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "role",
+              "type": "role",
+              "description": "Muted role",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/setup mute-role role:"
+        },
+        {
+          "name": "/setup mod-logs",
+          "kind": "slash",
+          "description": "Set the moderation logs channel",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Mod logs channel",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/setup mod-logs channel:"
+        },
+        {
+          "name": "/setup cleared-log",
+          "kind": "slash",
+          "description": "Set the cleared-message log channel",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Cleared-message log channel",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/setup cleared-log channel:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>mod-log<span class=\"topic\">every action is a case</span></div><div class=\"body\">\n<div class=\"sys\"><span class=\"mention\">@nova</span> used <code>/warn</code></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#f0b232\"><b>⚠️ Member warned · case #128</b><div><b>Member:</b> <span class=\"mention\">@k1ra_x</span></div><div><b>Reason:</b> Posting invite links</div><div><b>Moderator:</b> <span class=\"mention\">@nova</span></div><div class=\"sub\">Warning 3 of 3 · a 1 h timeout is offered</div></div>\n<div class=\"btns\"><span class=\"btn primary\">Timeout 1 h</span><span class=\"btn\">Not now</span></div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"card\" style=\"border-left-color:#5865f2\"><div class=\"h3\">Infractions · k1ra_x</div><div>Warns <b>3</b> · Timeouts <b>1</b> · Mutes <b>0</b> · Kicks <b>0</b> · Bans <b>0</b></div><div class=\"btns\"><span class=\"btn primary\">Warns</span><span class=\"btn\">Timeouts</span><span class=\"btn\">Mutes</span></div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "softban",
+      "name": "Softban & appeals",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Locks a member into one channel where they can appeal, instead of banning them.",
+      "lead": "A softban takes a member's roles and leaves them one channel. After a wait they can open an appeal ticket, and staff approve or deny it with a button.",
+      "points": [
+        "The member keeps their place but sees only the softban lobby.",
+        "After a wait, an Appeal button opens a private ticket.",
+        "Staff approve or deny from the ticket; approving gives their roles back.",
+        "Softbans survive leaving and rejoining."
+      ],
+      "use": [
+        "Softban: `/softban`. Members without the permission can `/request-softban`.",
+        "Set the softban role and lobby channel: `/setup softban`.",
+        "Decide an appeal: the buttons in the ticket, or `/appeal approve` and `/appeal deny`.",
+        "Lift it early: `/unsoftban`."
+      ],
+      "why": [
+        {
+          "title": "A way back",
+          "text": "A ban gives no room to explain. Keeping the member in one channel lets them appeal without DMs, and keeps the decision in front of staff."
+        }
+      ],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "moderation"
+      ],
+      "commands": [
+        {
+          "name": "/softban",
+          "kind": "slash",
+          "description": "Strip a member's roles and isolate them in the softban lobby",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "Member to softban (or paste an ID if they left)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "userid",
+              "type": "string",
+              "description": "User ID to softban if they are not in the server",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for the softban",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "dm",
+              "type": "boolean",
+              "description": "DM the member the reason (default: true)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/softban"
+        },
+        {
+          "name": "/unsoftban",
+          "kind": "slash",
+          "description": "Lift a softban and restore the member's saved roles",
+          "permissions": [
+            "Moderate Members"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "Member to unsoftban (or paste an ID if they left)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "userid",
+              "type": "string",
+              "description": "User ID if they are not in the server",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for lifting the softban",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/unsoftban"
+        },
+        {
+          "name": "/request-softban",
+          "kind": "slash",
+          "description": "Request a softban for BMW Lovers (EMERGENCY MEETING only)",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "User to request a softban for",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for the softban request",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "file1",
+              "type": "attachment",
+              "description": "Evidence file 1 (required)",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "file2",
+              "type": "attachment",
+              "description": "Evidence file 2 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file3",
+              "type": "attachment",
+              "description": "Evidence file 3 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file4",
+              "type": "attachment",
+              "description": "Evidence file 4 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file5",
+              "type": "attachment",
+              "description": "Evidence file 5 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file6",
+              "type": "attachment",
+              "description": "Evidence file 6 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file7",
+              "type": "attachment",
+              "description": "Evidence file 7 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file8",
+              "type": "attachment",
+              "description": "Evidence file 8 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file9",
+              "type": "attachment",
+              "description": "Evidence file 9 (optional)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "file10",
+              "type": "attachment",
+              "description": "Evidence file 10 (optional)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/request-softban user: reason: file1:"
+        },
+        {
+          "name": "/appeal approve",
+          "kind": "slash",
+          "description": "Approve this appeal: restore their roles and member access",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/appeal approve"
+        },
+        {
+          "name": "/appeal deny",
+          "kind": "slash",
+          "description": "Deny this appeal: they stay banned and cannot appeal again",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/appeal deny"
+        },
+        {
+          "name": "/setup softban",
+          "kind": "slash",
+          "description": "Set up the softban role and lobby",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "action",
+              "type": "string",
+              "description": "set, status, or repair",
+              "required": true,
+              "choices": [
+                "set",
+                "status",
+                "repair"
+              ]
+            },
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Lobby channel, or omit to create",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "role",
+              "type": "role",
+              "description": "Softban role, or omit to create",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/setup softban action:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>softban-lobby<span class=\"topic\">the only channel a softbanned member sees</span></div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"card\" style=\"border-left-color:#f0b232\"><div class=\"h3\">You have been softbanned in Gaming Hub</div><div><b>Reason:</b> Repeated spam after warnings</div><div>You can open an appeal <span class=\"ts\">in 2 days</span>.</div><div class=\"btns\"><span class=\"btn success off\">Appeal</span></div></div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"card\" style=\"border-left-color:#5865f2\"><div class=\"h3\">Appeal #4 · k1ra_x</div><div><span class=\"mention\">@k1ra_x</span>: “I was sharing my own server, I didn't know that counted. It won't happen again.”</div><div class=\"btns\"><span class=\"btn success\">Approve</span><span class=\"btn danger\">Deny</span></div><div class=\"sub\">Approving gives their roles back</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "trust-card",
+      "name": "Join trust card",
+      "audience": "public",
+      "status": "beta",
+      "building": false,
+      "since": "2026-10-29",
+      "sinceLabel": "29 Oct 2026",
+      "summary": "Each join scored in points, with the reasons and buttons to act on it.",
+      "lead": "Every join posts a card in your log channel. The account is scored in points with each reason shown, so staff see why an account looks risky, not just that it does.",
+      "points": [
+        "Scores every join in points, with each reason shown.",
+        "Five levels, from Trusted to Extreme, in the card's colour.",
+        "Safe joins take one short card; risky ones get the full card.",
+        "Buttons to see infractions, time out, kick or mark safe."
+      ],
+      "use": [
+        "Turn it on: `/setup member-log log-channel:#logs`. Every join then posts a card there.",
+        "Give new members a role at the same time with `member-role`, and bots with `bot-role`.",
+        "Act from the card: the buttons need Moderate Members, Kick needs Kick Members."
+      ],
+      "why": [
+        {
+          "title": "Points, not a verdict",
+          "text": "Account age alone gives the same level the old join log did; an empty profile, a join wave or past infractions here add to it."
+        },
+        {
+          "title": "Emoji and the card's colour",
+          "text": "Discord cards can't draw coloured labels, so the level is an emoji and the card's stripe."
+        }
+      ],
+      "rules": [],
+      "arrived": [
+        {
+          "date": "2026-10-29",
+          "what": "Trust card replaces the risk embed.",
+          "label": "29 Oct 2026"
+        },
+        {
+          "date": "2026-10-29",
+          "what": "Short cards put the details on a second line, and leave the role out when the server gives none.",
+          "label": "29 Oct 2026"
+        }
+      ],
+      "related": [
+        "anti-raid",
+        "threat-network"
+      ],
+      "commands": [
+        {
+          "name": "/setup member-log",
+          "kind": "slash",
+          "description": "Configure member join and leave logs",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "log-channel",
+              "type": "channel",
+              "description": "Logging channel",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "member-role",
+              "type": "role",
+              "description": "Auto-role for new members",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "bot-role",
+              "type": "role",
+              "description": "Auto-role for new bots",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/setup member-log log-channel:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>member-log</div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"card\" style=\"border-left-color:#e21e1e\"><div class=\"row\"><div class=\"grow\"><div class=\"h3\">k1ra_x joined</div><div><span class=\"mention\">@k1ra_x</span> · got the Member role</div><div>🔴 <b>Extreme risk</b> · 95 points · 4 reasons</div></div><div class=\"thumb\"></div></div>\n<div class=\"sep\"></div><div><code>+40</code> <b>Account is 10 days old</b></div><div><code>+15</code> <b>Empty profile:</b> default avatar, no banner, no badges</div><div><code>+20</code> <b>Part of a join wave:</b> 12 new accounts in 60 s</div><div><code>+20</code> <b>Been here before:</b> 1 timeout, 2 warns</div>\n<div class=\"sep\"></div><div class=\"btns\"><span class=\"btn\">Infractions</span><span class=\"btn primary\">Timeout 1 h</span><span class=\"btn danger\">Kick</span><span class=\"btn success\">Mark safe</span></div></div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"card\" style=\"border-left-color:#3b82f6\"><div><span class=\"mention\">@mira</span> joined · 🔵 <b>Trusted</b><div class=\"sub\">3-year-old account, no flags · got the Member role · just now</div></div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "anti-raid",
+      "name": "Anti-raid & spam",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Times out anyone sending messages faster than a person can, and limits attachments per message.",
+      "lead": "Raids are fast: many messages in a few seconds. Anti-raid notices the burst and times the account out before the channel fills up.",
+      "points": [
+        "5 messages in 3 seconds gives a 1 hour timeout.",
+        "The owner, bots, members above the bot and listed exceptions are never touched.",
+        "Anti-multi-attachment deletes messages with more attachments than you allow.",
+        "Each timeout is reported in your mod log."
+      ],
+      "use": [
+        "Anti-raid needs nothing set up, only the Moderate Members permission.",
+        "Limit attachments: `/toggle-anti-multi-attachment`."
+      ],
+      "why": [
+        {
+          "title": "On by default",
+          "text": "A raid doesn't wait for setup. A timeout is easy to undo, so it's safe to act first."
+        }
+      ],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "trust-card",
+        "auto-kick"
+      ],
+      "commands": [
+        {
+          "name": "/toggle-anti-multi-attachment",
+          "kind": "slash",
+          "description": "Toggle anti-multi-attachment for this server",
+          "permissions": [
+            "Manage Messages"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/toggle-anti-multi-attachment"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>mod-log</div><div class=\"body\">\n<div class=\"msg\" style=\"opacity:.55\"><div class=\"av\">R</div><div class=\"col\"><div class=\"who\"><span class=\"name\">raid_bot_77</span><span class=\"time\">Today at 21:13</span></div><div>JOIN NOW discord.gg/…</div><div>JOIN NOW discord.gg/…</div><div>JOIN NOW discord.gg/…</div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#ed4245\"><b>🚫 Anti-Raid Triggered</b><div><b>User:</b> <span class=\"mention\">@raid_bot_77</span></div><div><b>Sent:</b> 5 messages in 3 seconds</div><div><b>Action:</b> timed out for 1 hour</div><div class=\"sub\">They were sent a DM saying why</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "auto-kick",
+      "name": "Auto-kick trap",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "A channel only compromised accounts post in. Posting there times them out, then mutes them.",
+      "lead": "Hacked accounts post scam links in every channel they can see. The trap is a channel people are told never to use; anything posted there gets the account stopped.",
+      "points": [
+        "1st post: 5 hour timeout. 2nd: 5 days. 3rd: the mute role.",
+        "Their recent messages are purged.",
+        "They get a DM that their account is likely compromised.",
+        "Staff bypass roles are never touched."
+      ],
+      "use": [
+        "Arm it: `/setup auto-kick action:set` with the channel, mute role and bypass roles.",
+        "Check or switch it: `action:status`, `on` or `off`."
+      ],
+      "why": [
+        {
+          "title": "Catches what filters miss",
+          "text": "Scam links change daily; posting in a channel no person would use doesn't."
+        }
+      ],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "anti-raid",
+        "trust-card"
+      ],
+      "commands": [
+        {
+          "name": "/setup auto-kick",
+          "kind": "slash",
+          "description": "Arm a trap channel: 5h, then 5d, then mute",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "action",
+              "type": "string",
+              "description": "set, status, on, or off",
+              "required": true,
+              "choices": [
+                "set",
+                "status",
+                "on",
+                "off"
+              ]
+            },
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Trap channel (for set)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "mute-role",
+              "type": "role",
+              "description": "Third-strike mute role (for set)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "bypass-role",
+              "type": "role",
+              "description": "Staff bypass role (for set)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "bypass-role-2",
+              "type": "role",
+              "description": "Extra bypass role",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "bypass-role-3",
+              "type": "role",
+              "description": "Extra bypass role",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/setup auto-kick action:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>do-not-post<span class=\"topic\">Do not post here. Anything posted gets your account stopped.</span></div><div class=\"body\">\n<div class=\"msg\" style=\"opacity:.55\"><div class=\"av\">J</div><div class=\"col\"><div class=\"who\"><span class=\"name\">jake</span><span class=\"time\">Today at 21:13</span></div><div style=\"text-decoration:line-through\">free nitro for everyone 🎁 steamgift.example/claim</div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#f0b232\"><b>⚠️ Auto-trap triggered in Gaming Hub</b><div><b>Account:</b> <span class=\"mention\">@jake</span></div><div><b>Strike 1 of 3:</b> 5 hour timeout</div><div>Their recent messages were purged.</div><div class=\"sub\">Next: 5 days, then the mute role</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "blacklist",
+      "name": "Global blacklist",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Accounts known for scams or raids are banned the moment they join any server with syntaxx.",
+      "lead": "When an account is blacklisted, every server with syntaxx bans it on join. Anyone can request a blacklist with proof; the syntaxx team decides.",
+      "points": [
+        "A blacklisted account is banned on join, in every server.",
+        "If the bot can't ban, the owner gets a DM instead.",
+        "Request one with `/request-blacklist` and proof.",
+        "The syntaxx team reviews every request."
+      ],
+      "use": [
+        "Request: `/request-blacklist user:… reason:… proof:…`."
+      ],
+      "why": [
+        {
+          "title": "Decided by people",
+          "text": "A wrong entry bans someone everywhere, so requests go to the team rather than straight onto the list."
+        }
+      ],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "threat-network"
+      ],
+      "commands": [
+        {
+          "name": "/request-blacklist",
+          "kind": "slash",
+          "description": "Request a user to be blacklisted (Developer notified)",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "string",
+              "description": "User mention or ID to request blacklist for",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for requesting blacklist",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "proof",
+              "type": "attachment",
+              "description": "Attach any proof (optional)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/request-blacklist user: reason:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>member-log</div><div class=\"body\">\n<div class=\"sys\">→ <b>scam_acc_19</b> joined the server</div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#ed4245\"><b>🔨 Blacklisted account banned on join</b><div><b>Account:</b> <span class=\"mention\">@scam_acc_19</span></div><div><b>Blacklist reason:</b> Scam links in several servers</div><div class=\"sub\">Banned before they could post</div></div></div></div>\n<div class=\"sys\"><span class=\"mention\">@mira</span> used <code>/request-blacklist</code></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#5865f2\"><b>Request sent</b><div>The syntaxx team will review it with your proof.</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "verification",
+      "name": "Verification",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "New members verify through a short check on syntaxx.lol to get access.",
+      "lead": "A verify message with one button. It gives the member a personal link to syntaxx.lol, valid for 15 minutes; finishing there gives the verified role.",
+      "points": [
+        "One Verify button in a channel you pick.",
+        "A personal link, valid for 15 minutes.",
+        "Finishing the check gives the verified role."
+      ],
+      "use": [
+        "Set it up: `/setup verification`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "trust-card"
+      ],
+      "commands": [
+        {
+          "name": "/setup verification",
+          "kind": "slash",
+          "description": "Set up IP verification",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Verification channel",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "role",
+              "type": "role",
+              "description": "Role after verifying",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "block-alts",
+              "type": "boolean",
+              "description": "Block shared-IP alts",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/setup verification channel: role:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>verify</div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#3ba55c\"><b>Verify to get in</b><div>Press the button and finish the short check to see the rest of the server.</div></div>\n<div class=\"btns\"><span class=\"btn success\">Verify</span></div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#5865f2\"><b>Your verification link</b><div>Open it to finish. It works for 15 minutes and only for you.</div><div class=\"sub\">Only you can see this</div></div>\n<div class=\"btns\"><span class=\"btn\">Open syntaxx.lol ↗</span></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "welcome-leave",
+      "name": "Welcome & leave messages",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "A card when someone joins, with who invited them, and a note when someone leaves.",
+      "lead": "Greets new members with a card that names who invited them, and notes when someone leaves.",
+      "points": [
+        "Separate channels for joins and leaves.",
+        "The welcome card names who invited them."
+      ],
+      "use": [
+        "Set a channel: `/setup welcome-leave type:welcome` or `type:leave`. Leave the channel out to turn it off."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "trust-card"
+      ],
+      "commands": [
+        {
+          "name": "/setup welcome-leave",
+          "kind": "slash",
+          "description": "Set or disable welcome/leave channels",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "type",
+              "type": "string",
+              "description": "welcome or leave",
+              "required": true,
+              "choices": [
+                "welcome",
+                "leave"
+              ]
+            },
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Channel, or omit to disable",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/setup welcome-leave type:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>welcome</div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#3ba55c;max-width:560px\"><div class=\"row\"><div class=\"grow\"><b>👋 Welcome!</b><div style=\"margin-top:6px\">Welcome to <b>Gaming Hub</b>, <span class=\"mention\">@mira</span>!</div><div style=\"margin-top:10px\">Invited by: <b>nova</b></div></div><div class=\"thumb\" style=\"border-radius:50%\"></div></div></div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#ed4245\"><b>👋 Goodbye</b><div><b>jake</b> left the server.</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "levels",
+      "name": "Levels",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "XP for chatting, rank cards and a leaderboard.",
+      "lead": "Members earn XP as they chat and level up, with a rank card for each member and a leaderboard for the server.",
+      "points": [
+        "XP for messages, with level-up messages.",
+        "Rank cards in a modern glass or basic look.",
+        "A leaderboard for the server.",
+        "Can be turned off per server."
+      ],
+      "use": [
+        "See a rank: `/level`. The board: `/level-leaderboard`.",
+        "Pick the look: `/level-style`. Where level-ups go: `/setup level-message`.",
+        "Turn levels off or on: `/toggle-levels`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "casino"
+      ],
+      "commands": [
+        {
+          "name": "/level",
+          "kind": "slash",
+          "description": "Check your level and XP",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "User to check",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/level"
+        },
+        {
+          "name": "/level-leaderboard",
+          "kind": "slash",
+          "description": "Show the top 7 users by XP with messages",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/level-leaderboard"
+        },
+        {
+          "name": "/level-style",
+          "kind": "slash",
+          "description": "Switch level-up and leaderboard look between modern glass or basic cards",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "style",
+              "type": "string",
+              "description": "Display style for level-ups and the leaderboard",
+              "required": true,
+              "choices": [
+                "Modern (glass image)",
+                "Basic (white-strip ASCII card)"
+              ]
+            }
+          ],
+          "copy": "/level-style style:"
+        },
+        {
+          "name": "/toggle-levels",
+          "kind": "slash",
+          "description": "Enable or disable the level system for this server",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/toggle-levels"
+        },
+        {
+          "name": "/setup level-message",
+          "kind": "slash",
+          "description": "Set the level-up message channel",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Level-up channel, or omit to reset",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/setup level-message"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>general</div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div>🎉 <span class=\"mention\">@mira</span> reached <b>level 12</b>!</div>\n<div class=\"image\" style=\"width:520px;height:170px;flex-direction:column;align-items:stretch;justify-content:center;padding:0 24px;gap:10px;background:linear-gradient(135deg,rgba(124,92,196,.55),rgba(50,100,170,.45))\"><div style=\"display:flex;gap:14px;align-items:center\"><div class=\"av\" style=\"width:64px;height:64px;font-size:22px\">M</div><div><div class=\"h2\">mira</div><div class=\"sub\" style=\"color:#dbe2f0\">Level 12 · rank #4</div></div></div><div style=\"height:12px;border-radius:6px;background:rgba(255,255,255,.2)\"><div style=\"width:64%;height:12px;border-radius:6px;background:#f2f3f5\"></div></div><div class=\"sub\" style=\"color:#dbe2f0;text-align:right\">1,840 / 2,880 XP</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "private-vcs",
+      "name": "Private VCs",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Join one channel to get your own voice room, with a menu to lock, rename or invite.",
+      "lead": "Joining the \"Join to create\" channel makes a voice room for you and moves you in. Menus in the room let you lock, hide, rename and limit it, or kick and block people.",
+      "points": [
+        "Join one channel, get your own room.",
+        "Lock, hide, rename and set a user limit from menus in the room.",
+        "Kick or block people; hand the room to someone else.",
+        "The room is deleted when everyone has left."
+      ],
+      "use": [
+        "Set it up: `/setup voice` with the categories and your mod role.",
+        "Use it: join \"Join to create\", then use the menu in your room."
+      ],
+      "why": [],
+      "rules": [
+        "The panel is usable by the room's owner, admins and the configured mod role only; being in the room grants nothing.",
+        "The mod role gets a full-bypass overwrite on every room: it sees and joins locked and hidden rooms.",
+        "The owner, bots, admins and mods can't be kicked or blocked.",
+        "Blocks are channel permission overwrites, so they disappear when the room is deleted.",
+        "Kick counts are kept in memory: cleared when the room is deleted, reset when the bot restarts.",
+        "The muted role can't see or join \"Join to create\", is silently disconnected if it lands there anyway, and can see but never connect to rooms; that deny is re-applied on unlock and show.",
+        "A room is deleted the moment its owner leaves, or when it becomes empty; deleting one by hand removes its record too.",
+        "`/setup voice` refuses to run until `/setup mute-role` has stored a mute role that still exists, and re-running it replaces the config and deletes the old join channel."
+      ],
+      "arrived": [],
+      "related": [],
+      "commands": [
+        {
+          "name": "/setup voice",
+          "kind": "slash",
+          "description": "Set up join-to-create voice",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "vc-category",
+              "type": "channel",
+              "description": "Category for private VCs",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "join-category",
+              "type": "channel",
+              "description": "Category for the join channel",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "mod-role",
+              "type": "role",
+              "description": "Mod role that can join private VCs",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/setup voice vc-category: join-category: mod-role:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"split\"><div class=\"side\"><div class=\"cat\">VOICE</div><div class=\"ch\">🔊 Join to create</div><div class=\"ch on\">🔊 mira's VC</div><div class=\"vc\"><span class=\"dot\" style=\"background:#3ba55c\"></span>mira</div><div class=\"vc\"><span class=\"dot\" style=\"background:#5865f2\"></span>nova</div><div class=\"ch\">🔊 oak's VC</div><div class=\"vc\"><span class=\"dot\" style=\"background:#f0b232\"></span>oak</div></div>\n<div class=\"body\"><div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div>Your room is ready, <span class=\"mention\">@mira</span>. Use the menus to change it.</div>\n<div class=\"select\">Change channel settings<span>▾</span></div><div class=\"menu\"><div class=\"on\">🔒 Lock Channel</div><div>🔓 Unlock Channel</div><div>👑 Set VC Owner</div><div>👢 Kick User</div><div>⛔ Block User</div></div>\n<div class=\"select\">Channel tools<span>▾</span></div></div></div></div></div>\n</div>"
+    },
+    {
+      "id": "casino",
+      "name": "Casino",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Blackjack, mines, roulette and slots, played with chips.",
+      "lead": "Chip games: claim chips every day and play blackjack, mines, roulette or slots.",
+      "points": [
+        "Four games: blackjack, mines, roulette, slots.",
+        "Free chips every 24 hours with `/claim`.",
+        "Try to steal chips from someone, every 12 hours.",
+        "One wallet across every server."
+      ],
+      "use": [
+        "Get chips: `/claim`. See them: `/wallet`.",
+        "Play: `/blackjack`, `/mines`, `/roulette`, `/slot`.",
+        "Pick the casino channel: `/setup casino`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "levels"
+      ],
+      "commands": [
+        {
+          "name": "/blackjack",
+          "kind": "slash",
+          "description": "Play blackjack with your chips.",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "bet",
+              "type": "integer",
+              "description": "Amount of chips to bet",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/blackjack bet:"
+        },
+        {
+          "name": "/mines",
+          "kind": "slash",
+          "description": "🪜 Play Mines: avoid the bombs and get rich!",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "bet",
+              "type": "integer",
+              "description": "Amount to bet",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "bombs",
+              "type": "integer",
+              "description": "Number of bombs (3-15)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/mines bet:"
+        },
+        {
+          "name": "/roulette",
+          "kind": "slash",
+          "description": "Play roulette: bet on red, black, a number, a dozen, or a column.",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "bet",
+              "type": "integer",
+              "description": "Amount to bet",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "choice",
+              "type": "string",
+              "description": "red, black, 0-36, dozen1-3, k1-k3, even/odd",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/roulette bet: choice:"
+        },
+        {
+          "name": "/slot",
+          "kind": "slash",
+          "description": "🎰 Play slots and try your luck!",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "bet",
+              "type": "integer",
+              "description": "Amount of chips to bet",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/slot bet:"
+        },
+        {
+          "name": "/wallet",
+          "kind": "slash",
+          "description": "Check your (or another user's) global money and chips.",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "Check someone else's wallet",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/wallet"
+        },
+        {
+          "name": "/claim",
+          "kind": "slash",
+          "description": "Claim your daily chips (every 24h).",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/claim"
+        },
+        {
+          "name": "/steal-chips",
+          "kind": "slash",
+          "description": "Try to steal chips from another user (12h cooldown)!",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "target",
+              "type": "user",
+              "description": "User to steal chips from",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/steal-chips target:"
+        },
+        {
+          "name": "/setup casino",
+          "kind": "slash",
+          "description": "Set the casino commands channel",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Casino channel",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/setup casino channel:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>casino</div><div class=\"body\">\n<div class=\"sys\"><span class=\"mention\">@jaxon</span> used <code>/blackjack</code></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#c9b06a;max-width:460px\"><b>🃏 Blackjack</b><div><b>Your hand:</b> <code>K♠</code> <code>7♥</code> = 17</div><div><b>Dealer:</b> <code>9♦</code> <code>??</code></div><div class=\"sub\">Bet: 250 chips</div></div>\n<div class=\"btns\"><span class=\"btn primary\">Hit</span><span class=\"btn\">Stand</span></div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#3ba55c;max-width:460px\"><b>💼 jaxon</b><div>Chips: <b>4,120</b> · next <code>/claim</code> <span class=\"ts\">in 6 hours</span></div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "color-roles",
+      "name": "Colour roles",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Members react to pick a name colour.",
+      "lead": "A message with an emoji per colour role. Reacting gives that colour.",
+      "points": [
+        "One reaction per colour.",
+        "One colour at a time: a second pick is removed with a DM saying why."
+      ],
+      "use": [
+        "Set it up: `/setup color-roles`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [],
+      "commands": [
+        {
+          "name": "/setup color-roles",
+          "kind": "slash",
+          "description": "Set up pastel color reaction roles",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/setup color-roles"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>roles</div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#c9b06a\"><b>Pick your colour</b><div>🔴 <b style=\"color:#ed4245\">Red</b> · 🟢 <b style=\"color:#3ba55c\">Green</b> · 🔵 <b style=\"color:#3b82f6\">Blue</b> · 🟣 <b style=\"color:#a970ff\">Purple</b></div><div class=\"sub\">One colour at a time</div></div>\n<div><span class=\"react\">🔴 12</span><span class=\"react on\">🟢 9</span><span class=\"react\">🔵 15</span><span class=\"react\">🟣 7</span></div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"sub\">· in your DMs</span></div><div>✅ You have been given the role <b>Green</b>.</div></div></div>\n</div></div>"
+    },
+    {
+      "id": "command-perms",
+      "name": "Command permissions",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Choose which roles can use which moderation commands, and where.",
+      "lead": "Per command, allow or deny roles and limit it to channels, on top of Discord's own permissions.",
+      "points": [
+        "Allow or deny roles per command.",
+        "Limit a command to some channels.",
+        "Admins and the owner can always use everything."
+      ],
+      "use": [
+        "Allow: `/perms allow`. Deny: `/perms deny`. See all: `/perms list`. Undo: `/perms reset`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "moderation"
+      ],
+      "commands": [
+        {
+          "name": "/perms allow",
+          "kind": "slash",
+          "description": "Allow a user, role, or channel to use a command",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "command",
+              "type": "string",
+              "description": "Command permission key (e.g. mute)",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "description": "Who or where to allow",
+              "required": true,
+              "choices": [
+                "user",
+                "role",
+                "channel"
+              ]
+            },
+            {
+              "name": "user",
+              "type": "user",
+              "description": "User to allow (when type is user)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "role",
+              "type": "role",
+              "description": "Role to allow (when type is role)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Channel to allow (when type is channel)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "all-channels",
+              "type": "boolean",
+              "description": "Allow in every channel (when type is channel)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/perms allow command: type:"
+        },
+        {
+          "name": "/perms deny",
+          "kind": "slash",
+          "description": "Deny a user, role, or channel from using a command",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "command",
+              "type": "string",
+              "description": "Command permission key (e.g. mute)",
+              "required": true,
+              "choices": []
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "description": "Who or where to deny",
+              "required": true,
+              "choices": [
+                "user",
+                "role",
+                "channel"
+              ]
+            },
+            {
+              "name": "user",
+              "type": "user",
+              "description": "User to deny (when type is user)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "role",
+              "type": "role",
+              "description": "Role to deny (when type is role)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "channel",
+              "type": "channel",
+              "description": "Channel to deny (when type is channel)",
+              "required": false,
+              "choices": []
+            },
+            {
+              "name": "all-channels",
+              "type": "boolean",
+              "description": "Remove all-channel access (when type is channel)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/perms deny command: type:"
+        },
+        {
+          "name": "/perms list",
+          "kind": "slash",
+          "description": "List configured command permissions",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "command",
+              "type": "string",
+              "description": "Command permission key to list (omit for all)",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/perms list"
+        },
+        {
+          "name": "/perms reset",
+          "kind": "slash",
+          "description": "Reset permissions for a command, or all",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "command",
+              "type": "string",
+              "description": "Command permission key, or all",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/perms reset command:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>staff-commands</div><div class=\"body\">\n<div class=\"sys\"><span class=\"mention\">@Admin</span> used <code>/perms list</code></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#5865f2;max-width:560px\"><b>Command permissions</b><div><code>warn</code> Allowed: <span class=\"mention\">@Mods</span> <span class=\"mention\">@Helpers</span> · all channels</div><div><code>timeout</code> Allowed: <span class=\"mention\">@Mods</span> · denied: <span class=\"mention\">@Trial</span></div><div><code>ban</code> Allowed: <span class=\"mention\">@Admins</span> · only <span class=\"mention\">#mod-log</span></div><div class=\"sub\">Admins and the owner can always use everything</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "quotes",
+      "name": "Quotes",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Turn any message into a quote card.",
+      "lead": "Right-click a message › Apps › Quote Message, and syntaxx posts it as an image with the author's picture.",
+      "points": [
+        "Right-click any message to quote it.",
+        "An image card with the author's avatar and the message."
+      ],
+      "use": [
+        "Right-click a message › Apps › Quote Message."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [],
+      "commands": [
+        {
+          "name": "ctx:Quote Message",
+          "kind": "message-context",
+          "description": "",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "Right-click › Apps › Quote Message"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>general</div><div class=\"body\">\n<div class=\"sys\"><span class=\"mention\">@oak</span> quoted a message</div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"image\" style=\"width:560px;height:280px;justify-content:flex-start;gap:28px;padding:0 36px;background:#0e0f12\"><div class=\"av\" style=\"width:120px;height:120px;font-size:40px\">N</div><div style=\"display:flex;flex-direction:column;gap:12px\"><div style=\"font-size:24px;color:#f2f3f5;font-style:italic;line-height:1.3\">“Who put the cheese in the server fridge.”</div><div style=\"color:#949ba4\">— nova</div></div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "ai-check",
+      "name": "AI check",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Checks whether a message looks written by AI.",
+      "lead": "Right-click a message › Apps › AI Check for an estimate of whether it was written by AI.",
+      "points": [
+        "Right-click any message.",
+        "Shows how likely it is to be AI-written."
+      ],
+      "use": [
+        "Right-click a message › Apps › AI Check (Administrator)."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [],
+      "commands": [
+        {
+          "name": "ctx:AI Check",
+          "kind": "message-context",
+          "description": "",
+          "permissions": [
+            "Administrator"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "Right-click › Apps › AI Check"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>essays</div><div class=\"body\">\n<div class=\"msg\" style=\"opacity:.6\"><div class=\"av\">S</div><div class=\"col\"><div class=\"who\"><span class=\"name\">sam</span><span class=\"time\">Today at 20:58</span></div><div>In conclusion, the multifaceted nature of this issue underscores the importance of a holistic approach…</div></div></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#f0b232\"><b>AI check</b><div>This message looks <b>likely AI-written</b>.</div><div style=\"height:8px;border-radius:4px;background:#1e1f22;width:320px\"><div style=\"width:87%;height:8px;border-radius:4px;background:#f0b232\"></div></div><div class=\"sub\">An estimate, not proof · only you can see this</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "car-check",
+      "name": "Car check",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Basic car details from a VIN.",
+      "lead": "Type a VIN and get the make, model and year back.",
+      "points": [
+        "Make, model and year from the VIN alone.",
+        "Free; no account needed."
+      ],
+      "use": [
+        "`/checkmycar vin:…`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [],
+      "commands": [
+        {
+          "name": "/checkmycar",
+          "kind": "slash",
+          "description": "Check basic car info using a VIN (free)",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "vin",
+              "type": "string",
+              "description": "Vehicle Identification Number",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/checkmycar vin:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>cars</div><div class=\"body\">\n<div class=\"sys\"><span class=\"mention\">@jaxon</span> used <code>/checkmycar</code></div>\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#3b82f6;max-width:480px\"><b>🚗 Car check</b><div style=\"display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:4px\"><div><b>Make</b><div>BMW</div></div><div><b>Model</b><div>3 Series</div></div><div><b>Year</b><div>2019</div></div></div><div class=\"sub\">From the VIN · free data</div></div></div></div>\n<div class=\"input\"><span>/checkmycar</span><span class=\"opt\">vin: WBA…</span></div>\n</div></div>"
+    },
+    {
+      "id": "tools",
+      "name": "Handy tools",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Avatars, banners, QR codes, background removal, timers and AFK.",
+      "lead": "Small things members use every day.",
+      "points": [
+        "See anyone's avatar or banner.",
+        "Make a QR code, remove an image's background.",
+        "Timers, AFK status and a Vigenère cipher."
+      ],
+      "use": [
+        "`/avatar`, `/banner`, `/qr`, `/removebg`, `/timer`, `/afk`, `/vigenere`.",
+        "Prefix versions: `taxx!avatar`, `taxx!banner`, `taxx!nickname`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [],
+      "commands": [
+        {
+          "name": "/avatar",
+          "kind": "slash",
+          "description": "Show a user's avatar (defaults to yourself)",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "User to show the avatar of",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/avatar"
+        },
+        {
+          "name": "/banner",
+          "kind": "slash",
+          "description": "Show a user's profile banner (defaults to yourself)",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "user",
+              "type": "user",
+              "description": "User to show the banner of",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/banner"
+        },
+        {
+          "name": "/qr",
+          "kind": "slash",
+          "description": "Generate a QR code from text",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "text",
+              "type": "string",
+              "description": "Text to encode in QR code",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/qr text:"
+        },
+        {
+          "name": "/removebg",
+          "kind": "slash",
+          "description": "Remove the background from an image",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "image",
+              "type": "attachment",
+              "description": "The image to remove the background from",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/removebg image:"
+        },
+        {
+          "name": "/timer",
+          "kind": "slash",
+          "description": "timer",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/timer"
+        },
+        {
+          "name": "/afk",
+          "kind": "slash",
+          "description": "Set your AFK status",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "reason",
+              "type": "string",
+              "description": "Reason for going AFK",
+              "required": false,
+              "choices": []
+            }
+          ],
+          "copy": "/afk"
+        },
+        {
+          "name": "/vigenere",
+          "kind": "slash",
+          "description": "Encode or decode a message using the Vigenère cipher",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "mode",
+              "type": "string",
+              "description": "Choose encrypt or decrypt",
+              "required": true,
+              "choices": [
+                "Encrypt",
+                "Decrypt"
+              ]
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "description": "The message to encode/decode",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/vigenere mode: text:"
+        },
+        {
+          "name": "taxx!avatar",
+          "kind": "prefix",
+          "description": "",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "taxx!avatar"
+        },
+        {
+          "name": "taxx!banner",
+          "kind": "prefix",
+          "description": "",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "taxx!banner"
+        },
+        {
+          "name": "taxx!nickname",
+          "kind": "prefix",
+          "description": "Change the nickname of a user (requires Manage Nicknames permission)",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "taxx!nickname"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>bot-commands</div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"row\"><div class=\"embed\" style=\"border-left-color:#5865f2;width:250px\"><b>mira's avatar</b><div class=\"av\" style=\"width:200px;height:200px;border-radius:12px;font-size:60px\">M</div></div>\n<div class=\"embed\" style=\"border-left-color:#c9b06a;width:250px\"><b>QR code</b><div style=\"width:200px;height:200px;border-radius:8px;background:repeating-conic-gradient(#f2f3f5 0 25%,#111214 0 50%) 0 0/25px 25px\"></div></div></div></div></div>\n<div class=\"input\"><span>/qr</span><span class=\"opt\">text: https://syntaxx.lol</span></div>\n</div></div>"
+    },
+    {
+      "id": "help-info",
+      "name": "Help & server info",
+      "audience": "public",
+      "status": "stable",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Every command in one menu, your server's setup at a glance, and a way to reach us.",
+      "lead": "Where to start: the help menu, what's set up in your server, and contact with the syntaxx team.",
+      "points": [
+        "/help lists every command.",
+        "/server shows what's set up here.",
+        "/contact reaches the syntaxx team."
+      ],
+      "use": [
+        "`/help` or `taxx!help`. `/server` (Manage Server). `/contact`.",
+        "Change the bot's nickname here: `/rename`."
+      ],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [],
+      "commands": [
+        {
+          "name": "taxx!help",
+          "kind": "prefix",
+          "description": "Lists every command the bot answers to.",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "taxx!help"
+        },
+        {
+          "name": "/server",
+          "kind": "slash",
+          "description": "View server setups (Admin only)",
+          "permissions": [
+            "Manage Guild"
+          ],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/server"
+        },
+        {
+          "name": "/ping",
+          "kind": "slash",
+          "description": "Replies with Pong! and shows latency.",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/ping"
+        },
+        {
+          "name": "/contact",
+          "kind": "slash",
+          "description": "Send a message directly to Syntaxx via a form.",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [],
+          "copy": "/contact"
+        },
+        {
+          "name": "/rename",
+          "kind": "slash",
+          "description": "Change the bot’s nickname in this server",
+          "permissions": [],
+          "developer": false,
+          "tester": false,
+          "aliases": [],
+          "options": [
+            {
+              "name": "new_name",
+              "type": "string",
+              "description": "The new nickname for the bot",
+              "required": true,
+              "choices": []
+            }
+          ],
+          "copy": "/rename new_name:"
+        }
+      ],
+      "settings": null,
+      "scene": "<div class=\"sx-scene\"><div class=\"head\"><span class=\"hash\">#</span>bot-commands</div><div class=\"body\">\n<div class=\"msg\"><div class=\"av bot\">sx</div><div class=\"col\"><div class=\"who\"><span class=\"name\">syntaxx.lol</span><span class=\"app\">APP</span><span class=\"time\">Today at 21:14</span></div>\n<div class=\"embed\" style=\"border-left-color:#c9b06a\"><b>syntaxx.lol help</b><div>Pick a category to see its commands.</div></div>\n<div class=\"select\">Choose a category<span>▾</span></div><div class=\"menu\"><div class=\"on\">🛡️ Moderation</div><div>🎲 Casino</div><div>⭐ Levels</div><div>🧰 Tools</div><div>⚙️ Setup</div></div></div></div>\n</div></div>"
+    },
+    {
+      "id": "threat-network",
+      "name": "Threat network",
+      "audience": "public",
+      "status": "planned",
+      "building": false,
+      "since": "",
+      "sinceLabel": "",
+      "summary": "Would add a reason to the trust card when other servers already caught the same account.",
+      "lead": "When the trap or anti-raid catches an account in one server, other servers that opted in would see it as one more reason on that account's trust card.",
+      "points": [
+        "Opt in per server.",
+        "Only automatic catches count, never another server's manual bans.",
+        "Other servers are never named."
+      ],
+      "use": [],
+      "why": [],
+      "rules": [],
+      "arrived": [],
+      "related": [
+        "trust-card",
+        "auto-kick"
+      ],
+      "commands": [],
+      "settings": null,
+      "scene": ""
+    }
+  ]
+}

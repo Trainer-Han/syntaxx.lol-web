@@ -33,6 +33,7 @@ const dist = join(root, "dist", "client");
 // drifted from App.tsx's routes.
 const ROUTES = [
   { path: "/", notFound: false },
+  { path: "/features", notFound: false },
   { path: "/commands", notFound: false },
   { path: "/terms", notFound: false },
   { path: "/privacy", notFound: false },
